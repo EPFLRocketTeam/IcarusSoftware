@@ -1,0 +1,7 @@
+msv2.c:59:10:calc_field_CRC	24	static
+msv2.c:79:6:msv2_init	16	static
+msv2.c:84:10:msv2_create_frame	32	static
+msv2.c:118:14:msv2_decode_func	16	static
+msv2.c:126:14:msv2_decode_fragment	24	static
+msv2.c:204:11:msv2_rx_data	16	static
+msv2.c:208:11:msv2_tx_data	16	static

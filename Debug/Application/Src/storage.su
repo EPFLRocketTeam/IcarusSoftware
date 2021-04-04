@@ -1,0 +1,12 @@
+storage.c:114:6:storage_init	128	static
+storage.c:145:6:storage_record_sample	64	static
+storage.c:154:13:write_header_used	16	static
+storage.c:166:23:read_data	24	static
+storage.c:172:13:write_data	16	static
+storage.c:182:10:storage_get_used	4	static
+storage.c:186:6:storage_get_sample	56	static
+storage.c:190:6:storage_enable	4	static
+storage.c:194:6:storage_disable	4	static
+storage.c:198:6:storage_restart	4	static
+storage.c:202:6:storage_notify	8	static
+storage.c:209:6:storage_thread	16	static
