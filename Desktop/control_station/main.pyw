@@ -42,8 +42,9 @@ total_data = 1
 #COMMANDS
 GET_STAT = 	0x00
 BOOT = 		0x01
+SHUTDOWN = 	0x02
 DOWNLOAD = 	0x03
-MOVE = 		0x04
+TVC_MOVE = 	0x04
 ABORT = 	0x05
 RECOVER =	0x06
 
@@ -92,7 +93,6 @@ def connect_trig():
     device = window.connect_device.text()
     if connection_status == "DISCONNECTED":
         serial_worker.ser_connect(device)
-        serial_worker.send_generic(GET_PP_PARAMS, [0x00, 0x00])
     else:
         serial_worker.ser_disconnect()
         
@@ -110,34 +110,20 @@ def tvc_motor_move_trig():
     serial_worker.send_generic(TVC_MOVE, bin_data)
 
 def boot_trig():
-    serial_worker.send_generic(IGNITE, [0x00, 0x00])
+    serial_worker.send_generic(BOOT, [0x00, 0x00])
 
 def shutdown_trig():
-    serial_worker.send_generic(RECOVER, [0x00, 0x00])
+    serial_worker.send_generic(SHUTDOWN, [0x00, 0x00])
 
 def abort_trig():
     serial_worker.send_generic(ABORT, [0x00, 0x00])
 
+def recover_trig():
+    serial_worker.send_generic(RECOVER, [0x00, 0x00])
+
 def ping_trig():
     serial_worker.send_ping()
 
-
-def vent_open_trig():
-    bin_data = struct.pack("H", 1)
-    serial_worker.send_generic(VENTING, bin_data)
-
-def vent_close_trig():
-    bin_data = struct.pack("H", 0)
-    serial_worker.send_generic(VENTING, bin_data)
-
-def vent_cb(stat):
-    if(stat and len(stat) == 2):
-        data = struct.unpack("H", bytes(stat))
-        window.vent_status.clear()
-        if(data[0]):
-            window.vent_status.setText("OPEN")
-        else:
-            window.vent_status.setText("CLOSED")
 
 def id_2_mem(id):
     usage = float(id)*32
@@ -152,98 +138,34 @@ def id_2_mem(id):
     return "{:.3f} {}".format(u_flt, u_str)
 
 
-def ping_cb(stat, sens):
+def ping_cb(stat):
     global status_state
     global counter
     global total_data
 
-    if(stat and len(stat) == 28):
-        data = struct.unpack("HHHHiiIiHBb", bytes(stat))
+    if(stat and len(stat) == 20):
+        data = struct.unpack("HHiIiHBb", bytes(stat))
+        #data [state, counter, memory, tvc_pos, tvc_psu, tvc_error, tvc_temp]
         state = data[0]
         status_state = state
         window.status_state.clear()
-        window.pp_error.clear()
-        window.pp_psu.clear()
         window.tvc_psu.clear()
         window.tvc_motor_current.clear()
         window.tvc_error.clear()
         window.tvc_temperature.clear()
-        window.status_counter.setText(str(round(float(data[5])/1000, 1)))
-        #window.status_counter.display(round(float(data[5])/1000, 1))
-        window.pp_motor_current.clear()
-        state_text = ['IDLE', 'CALIBRATION', 'ARMED', 'COUNTDOWN', 'IGNITION', 'THRUST', 'SHUTDOWN', 'GLIDE', 'ABORT', 'ERROR']
+        window.status_counter.setText(str(round(float(data[2])/1000, 1)))
+
+        state_text = ['IDLE', 'BOOT', 'COMPUTE', 'SHUTDOWN', 'ABORT', 'ERROR']
         window.status_state.insert(state_text[state])
-        window.pp_error.insert(hex(data[2]))
-        window.pp_psu.insert(str(data[1]/10))
-        window.pp_motor_current.insert(str(inc2deg(data[4])))
-        window.dl_used.setText(id_2_mem(data[6]))
-        total_data = data[6]
-        window.tvc_psu.insert(str(data[8]/10))
-        window.tvc_motor_current.insert(str(dyn2deg(data[7])))
-        window.tvc_error.insert(hex(data[9]))
-        window.tvc_temperature.insert(str(data[10]))
-        if state == 1:
-            temperature_data_1.clear()
-            temperature_data_2.clear()
-            temperature_data_3.clear()
-            pressure_data_1.clear()
-            pressure_data_2.clear()
-            time_data.clear()
-            counter = 0;
-
-    if(sens and len(sens) == 24):
-
-        data = struct.unpack("iiiiiI", bytes(sens))
-        #print(data)
-
-        record_sample(data)
-
-        window.temp_1.setText("{:02.1f} °C".format(data[2]/10))
-        window.temp_2.setText("{:02.1f} °C".format(data[3]/10))
-        window.temp_3.setText("{:02.1f} °C".format(data[4]/10))
-
-        window.pres_1.setText("{:02.3f} Bar".format(data[0]/1000))
-        window.pres_2.setText("{:02.3f} Bar".format(data[1]/1000))
-
-        temperature_data_1.append(data[2])
-        temperature_data_2.append(data[3])
-        temperature_data_3.append(data[4])
-        pressure_data_1.append(data[0])
-        pressure_data_2.append(data[1])
-        time_current = data[5]
-        time_data.append(data[5])
-        counter = counter + 1
-
-        if counter == DATA_BUFFER_LEN:
-            temperature_data_1.pop(0)
-            temperature_data_2.pop(0)
-            temperature_data_3.pop(0)
-            pressure_data_1.pop(0)
-            pressure_data_2.pop(0)
-            time_data.pop(0)
+        window.dl_used.setText(id_2_mem(data[3]))
+        total_data = data[3]
+        window.tvc_psu.insert(str(data[5]/10))
+        window.tvc_motor_current.insert(str(dyn2deg(data[4])))
+        window.tvc_error.insert(hex(data[6]))
+        window.tvc_temperature.insert(str(data[7]))
 
 
-
-
-        temperature_axes.clear()
-        pressure_axes.clear()
-        pressure_axes.set_xticks([])
-        pressure_axes.set_ylabel("Pressure [Bar]")
-        temperature_axes.set_ylabel("Temperature [C]")
-        temperature_axes.set_xlabel("Time [ms]")
-
-        time_vec = (np.array(time_data)-time_current)/1000
-        pressure_axes.set_xlim(-(HEART_BEAT*DATA_BUFFER_LEN-100)/1000, 0.1)
-        temperature_axes.set_xlim(-(HEART_BEAT*DATA_BUFFER_LEN-100)/1000, 0.1)
-
-
-        temperature_axes.plot(time_vec, np.array(temperature_data_1)/10, label='1')
-        temperature_axes.plot(time_vec, np.array(temperature_data_2)/10, label='2')
-        temperature_axes.plot(time_vec, np.array(temperature_data_3)/10, label='3')
-        pressure_axes.plot(time_vec, np.array(pressure_data_1)/1000, label='1')
-        pressure_axes.plot(time_vec, np.array(pressure_data_2)/1000, label='2')
-        temperature_axes.figure.canvas.draw()
-        pressure_axes.figure.canvas.draw()
+    
 
 
 def write_csv(file, data):
@@ -337,12 +259,7 @@ class Serial_worker(QObject):
     def send_generic(self, opcode, data):
         if self.msv2.is_connected():
             resp = self.msv2.send(opcode, data)
-            print("generic:",resp)
-            if opcode == GET_PP_PARAMS:
-                self.update_pp_params_sig.emit(resp)
-
-            if opcode == VENTING:
-                self.update_venting_sig.emit(resp)
+            print("generic: ",'[{}]'.format(', '.join(hex(x) for x in resp)))
 
     @Slot()
     def download(self):
@@ -376,13 +293,12 @@ class Serial_worker(QObject):
     @Slot()
     def send_ping(self):
         if self.msv2.is_connected() and not self.downloading:
-            stat = self.msv2.send(GET_STATUS, [0x00, 0x00])
-            sens = self.msv2.send(GET_SENSOR, [0x00, 0x00])
-            if sens == -1 or sens==0:
+            stat = self.msv2.send(GET_STAT, [0x00, 0x00])
+            if stat == -1 or stat==0:
                 self.connect_sig.emit("RECONNECTING...")
             else:
                 self.connect_sig.emit("CONNECTED")
-            self.update_status_sig.emit(stat, sens)
+            self.update_status_sig.emit(stat)
 
     @Slot()
     def start_ping(self, period):
@@ -430,7 +346,7 @@ if __name__ == "__main__":
     if(res is not None):
         COM_PORT = res
     else:
-        COM_PORT = 'COM17'
+        COM_PORT = 'COM4'
 
     print(type(COM_PORT))
     if(type(COM_PORT)==str):
@@ -463,6 +379,9 @@ if __name__ == "__main__":
     window.connect_btn.clicked.connect(connect_trig)
     window.status_abort.clicked.connect(abort_trig)
     window.status_recover.clicked.connect(recover_trig)
+    window.status_boot.clicked.connect(boot_trig)
+    window.status_shutdown.clicked.connect(shutdown_trig)
+
     window.quit.clicked.connect(clean_quit)
     window.local_record.clicked.connect(start_record)
     window.download.clicked.connect(download_trig)

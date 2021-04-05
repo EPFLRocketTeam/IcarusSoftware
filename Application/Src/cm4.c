@@ -143,7 +143,7 @@ CM4_ERROR_t cm4_is_shutdown(CM4_INST_t * cm4, uint8_t * shutdown) {
 		*shutdown = 1;
 		return CM4_SUCCESS;
 	} else {
-		*shutdown = 1;
+		*shutdown = 0;
 		return CM4_SUCCESS;
 	}
 }

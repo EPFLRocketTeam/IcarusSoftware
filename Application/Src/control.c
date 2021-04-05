@@ -62,8 +62,8 @@ static CONTROL_SCHED_t sched_allowed[][SCHED_ALLOWED_WIDTH] = {
 		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//BOOT
 		{CONTROL_SCHED_ABORT, CONTROL_SCHED_SHUTDOWN, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//COMPUTE
 		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//SHUTDOWN
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//ABORT
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//ERROR
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_RECOVER, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//ABORT
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_RECOVER, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//ERROR
 };
 
 /**********************
@@ -130,6 +130,12 @@ void control_thread(void * arg) {
 
 	control.tvc_servo = &tvc_servo;
 
+	static CM4_INST_t cm4;
+
+	cm4_init(&cm4);
+
+	control.cm4 = &cm4;
+
 
 	init_idle(&control);
 
@@ -158,7 +164,7 @@ void control_thread(void * arg) {
 		control_update(&control);
 
 
-		if(control.state < CS_NUM && control.state > 0) {
+		if(control.state < CS_NUM && control.state >= 0) {
 			control_fcn[control.state](&control);
 		}
 		vTaskDelayUntil( &last_wake_time, period );
@@ -323,6 +329,7 @@ void control_recover() {
 
 CONTROL_STATUS_t control_get_status() {
 	CONTROL_STATUS_t status = {0};
+	status.state = control.state;
 	status.tvc_error = control.tvc_servo->error;
 	status.tvc_psu_voltage = control.tvc_servo->psu_voltage;
 	status.tvc_temperature = control.tvc_servo->temperature;
@@ -345,6 +352,9 @@ static void control_sched_done(CONTROL_INST_t * control, CONTROL_SCHED_t num) {
 }
 
 static void control_sched_set(CONTROL_INST_t * control, CONTROL_SCHED_t num) {
+	if(num == CONTROL_SCHED_ABORT) { //ABORT ALWAYS TAKES OVER
+		control->sched = num;
+	}
 	if(control->sched == CONTROL_SCHED_NOTHING) {
 		for(uint8_t i = 0; i < SCHED_ALLOWED_WIDTH; i++) {
 			if(sched_allowed[control->state][i] == num) {

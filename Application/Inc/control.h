@@ -108,6 +108,8 @@ void control_thread(void * arg);
 
 CONTROL_STATE_t control_get_state();
 
+CONTROL_STATUS_t control_get_status();
+
 void control_move_tvc(int32_t target);
 void control_boot(void);
 void control_shutdown(void);

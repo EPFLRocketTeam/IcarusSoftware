@@ -128,21 +128,31 @@ void debug_init(DEBUG_INST_t * debug) {
 }
 
 static void debug_get_status(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = ERROR_LO;
-	resp[1] = ERROR_HI;
-	*resp_len = 2;
+	CONTROL_STATUS_t status = control_get_status();
+	util_encode_u16(resp, status.state);
+	util_encode_u16(resp+2, 0); //padding
+	util_encode_i32(resp+4, status.counter);
+	uint32_t memory = storage_get_used();
+	util_encode_u32(resp+8, memory);
+	util_encode_i32(resp+12, status.tvc_position);
+	util_encode_u16(resp+16, status.tvc_psu_voltage);
+	util_encode_u8(resp+18, status.tvc_error);
+	util_encode_i8(resp+19, status.tvc_temperature);
+	*resp_len = 20;
 }
 
 static void debug_boot(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = ERROR_LO;
-	resp[1] = ERROR_HI;
+	control_boot();
+	resp[0] = OK_LO;
+	resp[1] = OK_HI;
 	*resp_len = 2;
 }
 
 
 static void debug_shutdown(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = ERROR_LO;
-	resp[1] = ERROR_HI;
+	control_shutdown();
+	resp[0] = OK_LO;
+	resp[1] = OK_HI;
 	*resp_len = 2;
 }
 
@@ -172,14 +182,16 @@ static void debug_tvc_move(uint8_t * data, uint16_t data_len, uint8_t * resp, ui
 }
 
 static void debug_abort(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = ERROR_LO;
-	resp[1] = ERROR_HI;
+	control_abort();
+	resp[0] = OK_LO;
+	resp[1] = OK_HI;
 	*resp_len = 2;
 }
 
 static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = ERROR_LO;
-	resp[1] = ERROR_HI;
+	control_recover();
+	resp[0] = OK_LO;
+	resp[1] = OK_HI;
 	*resp_len = 2;
 }
 
