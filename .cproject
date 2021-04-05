@@ -89,6 +89,8 @@
                                     									
                                     <listOptionValue builtIn="false" value="../FlashAPI/Headers"/>
                                     									
+                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
+                                    									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/include"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
@@ -104,8 +106,6 @@
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
                                     								
                                 </option>
                                 								
@@ -273,6 +273,14 @@
                                     									
                                     <listOptionValue builtIn="false" value="../FlashAPI/Headers"/>
                                     									
+                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/propulsion_software_2/Application/Inc}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/propulsion_software_2/FlashAPI/Headers}&quot;"/>
+                                    									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/include"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
@@ -288,14 +296,6 @@
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/propulsion_software_2/Application/Inc}&quot;"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/propulsion_software_2/FlashAPI/Headers}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -455,6 +455,8 @@
                                     									
                                     <listOptionValue builtIn="false" value="../FlashAPI/Headers"/>
                                     									
+                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
+                                    									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/include"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
@@ -470,8 +472,6 @@
                                     <listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
                                     									
                                     <listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="../FlashAPI/Inc"/>
                                     								
                                 </option>
                                 								

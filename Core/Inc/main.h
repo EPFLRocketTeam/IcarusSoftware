@@ -64,6 +64,8 @@ void Error_Handler(void);
 #define DEBUG_RX_GPIO_Port GPIOC
 #define DEBUG_TX_Pin GPIO_PIN_10
 #define DEBUG_TX_GPIO_Port GPIOB
+#define RUN_PG_Pin GPIO_PIN_12
+#define RUN_PG_GPIO_Port GPIOB
 #define LED_GREEN_Pin GPIO_PIN_14
 #define LED_GREEN_GPIO_Port GPIOB
 #define LED_BLUE_Pin GPIO_PIN_15
@@ -74,6 +76,8 @@ void Error_Handler(void);
 #define CM4_RX_GPIO_Port GPIOC
 #define SERVO_TX_Pin GPIO_PIN_9
 #define SERVO_TX_GPIO_Port GPIOA
+#define GLOBAL_EN_Pin GPIO_PIN_11
+#define GLOBAL_EN_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

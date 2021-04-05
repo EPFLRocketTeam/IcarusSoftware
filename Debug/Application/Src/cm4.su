@@ -1,2 +1,5 @@
-cm4.c:64:6:cm4_init	16	static
-cm4.c:72:14:cm4_decode_fcn	24	static
+cm4.c:86:6:cm4_init	16	static
+cm4.c:94:14:cm4_decode_fcn	24	static
+cm4.c:104:16:read_run_pg	4	static
+cm4.c:108:13:set_global_en	4	static
+cm4.c:112:13:clr_global_en	4	static

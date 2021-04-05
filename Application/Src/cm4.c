@@ -32,6 +32,7 @@
 #include <cm4.h>
 #include <msv2.h>
 #include <serial.h>
+#include <main.h>
 
 
 /**********************
@@ -39,6 +40,12 @@
  **********************/
 
 #define CM4_UART	huart6
+
+#define CM4_GLOBAL_EN_PIN 	GLOBAL_EN_Pin
+#define CM4_GLOBAL_EN_PORT 	GLOBAL_EN_GPIO_Port
+
+#define CM4_RUN_PG_PIN 		RUN_PG_Pin
+#define CM4_RUN_PG_PORT 	RUN_PG_GPIO_Port
 
 /**********************
  *	CONSTANTS
@@ -59,6 +66,11 @@
 /**********************
  *	VARIABLES
  **********************/
+
+
+static uint8_t read_run_pg(void);
+static void set_global_en(void);
+static void clr_global_en(void);
 
 
 /**********************
@@ -86,6 +98,19 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 		//DO something with the reception
 	}
 	return tmp;
+}
+
+
+static uint8_t read_run_pg(void) {
+	return CM4_RUN_PG_PORT->IDR & CM4_RUN_PG_PIN ?1:0;
+}
+
+static void set_global_en(void) {
+	CM4_GLOBAL_EN_PORT->BSRR = CM4_GLOBAL_EN_PIN;
+}
+
+static void clr_global_en(void) {
+	CM4_GLOBAL_EN_PORT->BSRR = CM4_GLOBAL_EN_PIN << 16;
 }
 
 
