@@ -51,7 +51,8 @@ Application/Src/debug.o: ../Application/Src/debug.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- ../Application/Inc/can_comm.h ../Application/Inc/storage.h
+ ../Application/Inc/can_comm.h ../Application/Inc/cm4.h \
+ ../Application/Inc/storage.h
 
 ../Application/Inc/debug.h:
 
@@ -168,5 +169,7 @@ Application/Src/debug.o: ../Application/Src/debug.c \
 ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
 
 ../Application/Inc/can_comm.h:
+
+../Application/Inc/cm4.h:
 
 ../Application/Inc/storage.h:

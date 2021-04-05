@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <servo.h>
 #include <can_comm.h>
+#include <cm4.h>
 
 /**********************
  *  CONSTANTS
@@ -37,10 +38,11 @@
 
 typedef enum CONTROL_STATE{
 	CS_IDLE = 0x00,
-	CS_BOOT = 0x01,
-	CS_COMPUTE = 0x02,
-	CS_ABORT  = 0x03,
-	CS_ERROR  = 0x04,
+	CS_BOOT,
+	CS_COMPUTE,
+	CS_SHUTDOWN,
+	CS_ABORT,
+	CS_ERROR,
 	CS_NUM
 }CONTROL_STATE_t;
 
@@ -53,6 +55,8 @@ typedef enum CONTROL_STATE{
 typedef enum CONTROL_SCHED{
 	CONTROL_SCHED_NOTHING = 0x00,
 	CONTROL_SCHED_ABORT,
+	CONTROL_SCHED_BOOT,
+	CONTROL_SCHED_SHUTDOWN,
 	CONTROL_SCHED_MOVE_TVC,
 	CONTROL_SCHED_RECOVER
 }CONTROL_SCHED_t;
@@ -76,6 +80,7 @@ typedef struct CONTROL_INST{
 	int32_t counter;
 	uint8_t counter_active;
 	uint32_t iter;
+	CM4_INST_t * cm4;
 	SERVO_INST_t * tvc_servo;
 	int32_t	tvc_mov_target;
 	uint8_t tvc_mov_started;
@@ -104,8 +109,8 @@ void control_thread(void * arg);
 CONTROL_STATE_t control_get_state();
 
 void control_move_tvc(int32_t target);
-
 void control_boot(void);
+void control_shutdown(void);
 void control_abort(void);
 void control_recover(void);
 

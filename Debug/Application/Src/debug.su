@@ -1,7 +1,9 @@
 util.h:257:24:util_decode_u32	16	static
 util.h:269:23:util_decode_i32	16	static
-debug.c:95:14:debug_decode_fcn	32	static
-debug.c:121:6:debug_init	16	static
-debug.c:128:13:debug_download	32	static
-debug.c:139:13:debug_tvc_move	32	static
-debug.c:154:13:debug_get_status	24	static
+debug.c:93:14:debug_decode_fcn	32	static
+debug.c:119:6:debug_init	16	static
+debug.c:126:13:debug_get_status	24	static
+debug.c:132:13:debug_boot	24	static
+debug.c:139:13:debug_shutdown	24	static
+debug.c:145:13:debug_download	32	static
+debug.c:156:13:debug_tvc_move	32	static

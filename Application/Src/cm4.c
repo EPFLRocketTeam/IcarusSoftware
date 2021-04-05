@@ -68,9 +68,9 @@
  **********************/
 
 
-static uint8_t read_run_pg(void);
-static void set_global_en(void);
-static void clr_global_en(void);
+static uint8_t is_booted(void);
+static void allow_boot(void);
+static void hold_boot(void);
 
 
 /**********************
@@ -101,15 +101,65 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 }
 
 
-static uint8_t read_run_pg(void) {
+CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_COMMAND_t * cmd, CM4_PAYLOAD_SENSOR_t * sens) {
+
+	return CM4_SUCCESS;
+}
+
+CM4_ERROR_t cm4_boot(CM4_INST_t * cm4) {
+	allow_boot();
+	return CM4_SUCCESS;
+}
+
+CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready) {
+	if(ready == NULL){
+		return CM4_LOCAL_ERROR;
+	}
+	if(is_booted()) {
+		//check wheter the CM4 answers
+		//if answers
+		*ready = 1;
+		return CM4_SUCCESS;
+
+	} else {
+		*ready = 0;
+		return CM4_SUCCESS;
+	}
+}
+
+CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
+	//send shutdown command through uart
+	return CM4_SUCCESS;
+}
+
+CM4_ERROR_t cm4_is_shutdown(CM4_INST_t * cm4, uint8_t * shutdown) {
+	if(shutdown == NULL){
+		return CM4_LOCAL_ERROR;
+	}
+	if(!is_booted()) {
+		//check wheter the CM4 answers
+		//if answers
+		hold_boot();
+		*shutdown = 1;
+		return CM4_SUCCESS;
+	} else {
+		*shutdown = 1;
+		return CM4_SUCCESS;
+	}
+}
+
+
+
+
+static uint8_t is_booted(void) {
 	return CM4_RUN_PG_PORT->IDR & CM4_RUN_PG_PIN ?1:0;
 }
 
-static void set_global_en(void) {
+static void allow_boot(void) {
 	CM4_GLOBAL_EN_PORT->BSRR = CM4_GLOBAL_EN_PIN;
 }
 
-static void clr_global_en(void) {
+static void hold_boot(void) {
 	CM4_GLOBAL_EN_PORT->BSRR = CM4_GLOBAL_EN_PIN << 16;
 }
 

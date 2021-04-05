@@ -1,5 +1,10 @@
 cm4.c:86:6:cm4_init	16	static
 cm4.c:94:14:cm4_decode_fcn	24	static
-cm4.c:104:16:read_run_pg	4	static
-cm4.c:108:13:set_global_en	4	static
-cm4.c:112:13:clr_global_en	4	static
+cm4.c:104:13:cm4_transaction	24	static
+cm4.c:109:13:cm4_boot	16	static
+cm4.c:114:13:cm4_is_ready	16	static
+cm4.c:130:13:cm4_shutdown	16	static
+cm4.c:135:13:cm4_is_shutdown	16	static
+cm4.c:154:16:is_booted	4	static
+cm4.c:158:13:allow_boot	4	static
+cm4.c:162:13:hold_boot	4	static

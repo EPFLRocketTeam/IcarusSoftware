@@ -51,7 +51,8 @@ Application/Src/storage.o: ../Application/Src/storage.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_qspi.h \
  ../Application/Inc/util.h ../Application/Inc/servo_def.h \
- ../Application/Inc/can_comm.h ../FlashAPI/Headers/flash.h \
+ ../Application/Inc/can_comm.h ../Application/Inc/cm4.h \
+ ../Application/Inc/msv2.h ../FlashAPI/Headers/flash.h \
  ../Application/Inc/led.h
 
 ../Application/Inc/storage.h:
@@ -167,6 +168,10 @@ Application/Src/storage.o: ../Application/Src/storage.c \
 ../Application/Inc/servo_def.h:
 
 ../Application/Inc/can_comm.h:
+
+../Application/Inc/cm4.h:
+
+../Application/Inc/msv2.h:
 
 ../FlashAPI/Headers/flash.h:
 

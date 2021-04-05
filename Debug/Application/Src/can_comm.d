@@ -51,7 +51,8 @@ Application/Src/can_comm.o: ../Application/Src/can_comm.c \
  ../Application/Inc/control.h ../Application/Inc/servo.h \
  ../Application/Inc/dsv2.h ../Application/Inc/serial.h \
  ../Core/Inc/usart.h ../Application/Inc/util.h \
- ../Application/Inc/servo_def.h
+ ../Application/Inc/servo_def.h ../Application/Inc/cm4.h \
+ ../Application/Inc/msv2.h
 
 ../Core/Inc/can.h:
 
@@ -168,3 +169,7 @@ Application/Src/can_comm.o: ../Application/Src/can_comm.c \
 ../Application/Inc/util.h:
 
 ../Application/Inc/servo_def.h:
+
+../Application/Inc/cm4.h:
+
+../Application/Inc/msv2.h:

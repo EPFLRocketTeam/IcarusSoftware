@@ -20,8 +20,7 @@ import struct
 import msv2
 
 
-pressure_axes = None
-temperature_axes = None
+
 
 
 DATA_BUFFER_LEN = 500
@@ -32,11 +31,6 @@ SENSOR_REMOTE_BUFFER = 5
 
 counter = 0
 
-pressure_data_1 = []
-pressure_data_2 = []
-temperature_data_1 = []
-temperature_data_2 = []
-temperature_data_3 = []
 
 time_data = []
 window = []
@@ -46,27 +40,15 @@ worker = []
 total_data = 1
 
 #COMMANDS
-READ_STATE =    0x00
-SET_PP_PARAMS = 0x01
-GET_PP_PARAMS = 0x02
-PP_MOVE =       0x03
-CALIBRATE =     0x04
-ARM =           0x05
-DISARM =        0x06
-IGNITE =        0x07
-ABORT =         0x08
-RECOVER =       0x09
-GET_SENSOR =    0x0A
-GET_STATUS =    0x0B
-VENTING =       0x0C
-DOWNLOAD =      0x0D
-TVC_MOVE =      0x0E
+GET_STAT = 	0x00
+BOOT = 		0x01
+DOWNLOAD = 	0x03
+MOVE = 		0x04
+ABORT = 	0x05
+RECOVER =	0x06
 
 #MOVE MODES
-ABSOLUTE            = 0x00
-ABSOLUTE_IMMEDIATE  = 0x01
-RELATIVE            = 0x02
-RELATIVE_IMMEDIATE  = 0x03
+
 
 connection_status = "DISCONNECTED"
 status_state = 0;
@@ -122,84 +104,19 @@ def connect_cb(stat):
     window.connect_status.setText(stat)
     print("connection_updated")
 
-
-def pp_motor_get_trig():
-   serial_worker.send_generic(GET_PP_PARAMS, [0x00, 0x00])
-
-def pp_motor_get_cb(bin_data):
-    if(bin_data and len(bin_data) == 32):
-        data = struct.unpack("IIIIIIii", bytes(bin_data))
-
-        window.pp_motor_acc.clear()
-        window.pp_motor_dec.clear()
-        window.pp_motor_speed.clear()
-        window.pp_motor_cwait.clear()
-        window.pp_motor_hwait.clear()
-        window.pp_motor_fwait.clear()
-        window.pp_motor_hangle.clear()
-        window.pp_motor_fangle.clear()
-
-        window.pp_motor_acc.insert(str(data[0]))
-        window.pp_motor_dec.insert(str(data[1]))
-        window.pp_motor_speed.insert(str(data[2]))
-        window.pp_motor_cwait.insert(str(data[3]))
-        window.pp_motor_hwait.insert(str(data[4]))
-        window.pp_motor_fwait.insert(str(data[5]))
-        window.pp_motor_hangle.insert(str(inc2deg(data[6])))
-        window.pp_motor_fangle.insert(str(inc2deg(data[7])))
-
-
-def pp_motor_set_trig():
-    acc = safe_int(window.pp_motor_acc.text())
-    dec = safe_int(window.pp_motor_dec.text())
-    spd = safe_int(window.pp_motor_speed.text())
-    cwait = safe_int(window.pp_motor_cwait.text())
-    hwait = safe_int(window.pp_motor_hwait.text())
-    fwait = safe_int(window.pp_motor_fwait.text())
-    hangle = deg2inc(safe_float(window.pp_motor_hangle.text()))
-    fangle = deg2inc(safe_float(window.pp_motor_fangle.text()))
-    bin_data = struct.pack("IIIIIIii", acc, dec, spd, cwait, hwait, fwait, hangle, fangle)
-    serial_worker.send_generic(SET_PP_PARAMS, bin_data);
-
-
-def pp_motor_move_trig():
-    target = deg2inc(safe_float(window.pp_motor_target.text()))
-    imm = window.pp_motor_immediate.isChecked()
-    rel = window.pp_motor_relative.isChecked()
-    if(rel and imm):
-        mode = RELATIVE_IMMEDIATE
-    if(not rel and imm):
-        mode = ABSOLUTE_IMMEDIATE
-    if(rel and not imm):
-        mode = RELATIVE
-    if(not rel and not imm):
-        mode = ABSOLUTE
-    bin_data = struct.pack("iH", target, mode)
-    serial_worker.send_generic(PP_MOVE, bin_data)
-
 def tvc_motor_move_trig():
     target = deg2dyn(safe_float(window.tvc_motor_target.text()))
     bin_data = struct.pack("i", target)
     serial_worker.send_generic(TVC_MOVE, bin_data)
 
-def calibrate_trig():
-    serial_worker.send_generic(CALIBRATE, [0x00, 0x00])
-
-def arm_trig():
-    print("arm")
-    if status_state == 2: # if armed
-        serial_worker.send_generic(DISARM, [0x00, 0x00])
-    else:
-        serial_worker.send_generic(ARM, [0x00, 0x00])
-
-def ignite_trig():
+def boot_trig():
     serial_worker.send_generic(IGNITE, [0x00, 0x00])
+
+def shutdown_trig():
+    serial_worker.send_generic(RECOVER, [0x00, 0x00])
 
 def abort_trig():
     serial_worker.send_generic(ABORT, [0x00, 0x00])
-
-def recover_trig():
-    serial_worker.send_generic(RECOVER, [0x00, 0x00])
 
 def ping_trig():
     serial_worker.send_ping()
@@ -394,9 +311,7 @@ def download_cb(data, cnt):
 
 
 class Serial_worker(QObject):
-    update_status_sig = Signal(list, list) #status, sensor
-    update_pp_params_sig = Signal(list)
-    update_venting_sig = Signal(list)
+    update_status_sig = Signal(list) #status
     connect_sig = Signal(str)
     download_sig = Signal(list, int)
 
@@ -533,9 +448,7 @@ if __name__ == "__main__":
 
 
     serial_worker.connect_sig.connect(connect_cb)
-    serial_worker.update_pp_params_sig.connect(pp_motor_get_cb)
     serial_worker.update_status_sig.connect(ping_cb)
-    serial_worker.update_venting_sig.connect(vent_cb)
     serial_worker.download_sig.connect(download_cb)
 
     #start worker thread
@@ -544,54 +457,14 @@ if __name__ == "__main__":
 
     serial_worker.start_ping(HEART_BEAT)
 
-    '''
-    all the serial communication should be in a separate thread,
-    Some signals from the gui indicate what needs to be sent to the HOSTBOARD
-    Some signals from the serial comm thread indicate what needs to be changed
-
-    The communication can be implemented using two queues:
-    One queue for data [each field string preferably, ....]
-    One queue for commands one command at a time using the command codes
-
-    the buttons callbacks just signal the serial
-    There is one main timer function which updates the gui each 0.2sec or something like that
-
-    the periodic access for status and sensor data is done in the serial comm thread
-    '''
-
-    #CREATE OSCILLO GRAPH
-
-    pressure_figure = Figure(figsize=(3, 4), dpi=70)
-    pressure_axes = pressure_figure.add_subplot(111)
-    pressure_canvas = FigureCanvas(pressure_figure)
-    window.sensors_layout.addWidget(pressure_canvas)
-
-
-    temperature_figure = Figure(figsize=(3, 4), dpi=70)
-    temperature_axes = temperature_figure.add_subplot(111)
-    temperature_canvas = FigureCanvas(temperature_figure)
-    window.sensors_layout.addWidget(temperature_canvas)
-
-    pressure_axes.set_xticks([])
-    pressure_axes.set_ylabel("Pressure [mBar]")
-    temperature_axes.set_ylabel("Temperature [°C]")
-    temperature_axes.set_xlabel("Time [ms]")
 
 
 
     window.connect_btn.clicked.connect(connect_trig)
-    window.pp_motor_get.clicked.connect(pp_motor_get_trig)
-    window.pp_motor_set.clicked.connect(pp_motor_set_trig)
-    window.pp_motor_move.clicked.connect(pp_motor_move_trig)
-    window.status_calibrate.clicked.connect(calibrate_trig)
-    window.status_arm.clicked.connect(arm_trig)
-    window.status_ignite.clicked.connect(ignite_trig)
     window.status_abort.clicked.connect(abort_trig)
     window.status_recover.clicked.connect(recover_trig)
     window.quit.clicked.connect(clean_quit)
     window.local_record.clicked.connect(start_record)
-    window.vent_open.clicked.connect(vent_open_trig)
-    window.vent_close.clicked.connect(vent_close_trig)
     window.download.clicked.connect(download_trig)
     window.tvc_motor_move.clicked.connect(tvc_motor_move_trig)
 

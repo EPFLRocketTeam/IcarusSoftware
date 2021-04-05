@@ -16,6 +16,7 @@
 #include <storage.h>
 #include <can_comm.h>
 #include <servo.h>
+#include <cm4.h>
 
 /**********************
  *	CONFIGURATION
@@ -57,11 +58,12 @@ static CONTROL_INST_t control;
 
 //Authorisations table
 static CONTROL_SCHED_t sched_allowed[][SCHED_ALLOWED_WIDTH] = {
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//IDLE
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//BOOT
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//COMPUTE
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//ABORT
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//ERROR
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_BOOT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//POWERED_DOWN
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//BOOT
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_SHUTDOWN, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//COMPUTE
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//SHUTDOWN
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//ABORT
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//ERROR
 };
 
 /**********************
@@ -74,6 +76,7 @@ static void control_update(CONTROL_INST_t * control);
 static void init_idle(CONTROL_INST_t * control);
 static void init_boot(CONTROL_INST_t * control);
 static void init_compute(CONTROL_INST_t * control);
+static void init_shutdown(CONTROL_INST_t * control);
 static void init_abort(CONTROL_INST_t * control);
 static void init_error(CONTROL_INST_t * control);
 
@@ -81,6 +84,7 @@ static void init_error(CONTROL_INST_t * control);
 static void idle(CONTROL_INST_t * control);
 static void boot(CONTROL_INST_t * control);
 static void compute(CONTROL_INST_t * control);
+static void shutdown(CONTROL_INST_t * control);
 static void _abort(CONTROL_INST_t * control);
 static void error(CONTROL_INST_t * control);
 
@@ -95,6 +99,7 @@ static void (*control_fcn[])(CONTROL_INST_t *) = {
 		idle,
 		boot,
 		compute,
+		shutdown,
 		_abort,
 		error
 };
@@ -208,23 +213,56 @@ static void idle(CONTROL_INST_t * control) {
 		control_sched_done(control, CONTROL_SCHED_MOVE_TVC);
 	}
 
+	if(control_sched_should_run(control, CONTROL_SCHED_BOOT)) {
+		init_boot(control);
+		control_sched_done(control, CONTROL_SCHED_BOOT);
+	}
+
 }
 
 static void init_boot(CONTROL_INST_t * control) {
 	//global enable
 	//to boot the rpi
+	led_set_color(LED_LILA);
+	control->state = CS_BOOT;
+	cm4_boot(control->cm4);
 }
 
 static void boot(CONTROL_INST_t * control) {
 	//wait for the cm4 to start answering with concluent status packets
+	uint8_t ready = 0;
+	cm4_is_ready(control->cm4, &ready);
+	if(ready) {
+		init_compute(control);
+	}
 }
 
 static void init_compute(CONTROL_INST_t * control) {
 	//start sending data to raspberry pi
+	led_set_color(LED_BLUE);
+	control->state = CS_COMPUTE;
 }
 
 static void compute(CONTROL_INST_t * control) {
+	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {
+		init_shutdown(control);
+		control_sched_done(control, CONTROL_SCHED_SHUTDOWN);
+	}
+}
 
+
+static void init_shutdown(CONTROL_INST_t * control) {
+	led_set_color(LED_ORANGE);
+	control->state = CS_SHUTDOWN;
+	cm4_shutdown(control->cm4);
+}
+
+static void shutdown(CONTROL_INST_t * control) {
+	uint8_t shutdown = 0;
+	cm4_is_shutdown(control->cm4, &shutdown);
+	if(shutdown) {
+		init_idle(control);
+	}
 }
 
 static void init_abort(CONTROL_INST_t * control) {
@@ -268,7 +306,11 @@ void control_move_tvc(int32_t target) {
 }
 
 void control_boot(void) {
+	control_sched_set(&control, CONTROL_SCHED_BOOT);
+}
 
+void control_shutdown(void) {
+	control_sched_set(&control, CONTROL_SCHED_SHUTDOWN);
 }
 
 void control_abort() {

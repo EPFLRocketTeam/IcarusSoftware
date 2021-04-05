@@ -30,16 +30,9 @@
 #define DEBUG_UART huart3
 
 
-#define PP_PARAMS_LEN (32)
-#define PP_MOVE_LEN (6)
-#define STATUS_LEN (28)
-#define SENSOR_LEN (24)
-#define VENTING_LEN	(2)
 #define DOWNLOAD_LEN  (4)
 #define TVC_MOVE_LEN  (4)
 
-#define SENSOR_BFR	(5)
-#define SENSOR_BFR_LEN SENSOR_BFR*SENSOR_LEN
 
 
 #define ERROR_LO	(0xce)
@@ -71,17 +64,26 @@
  **********************/
 
 //debug routines
+static void debug_get_status(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_boot(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_shutdown(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_download(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_tvc_move(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
-static void debug_get_status(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_abort(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+
 
 /**********************
  *	DEBUG FCN ARRAY
  **********************/
 static void (*debug_fcn[]) (uint8_t *, uint16_t, uint8_t *, uint16_t *) = {
-
-		debug_download,
-		debug_tvc_move,
+		debug_get_status,	//0x00
+		debug_boot,			//0x01
+		debug_shutdown,		//0x02
+		debug_download,		//0x03
+		debug_tvc_move,		//0x04
+		debug_abort,		//0x05
+		debug_recover		//0x06
 };
 
 static uint16_t debug_fcn_max = sizeof(debug_fcn) / sizeof(void *);
@@ -125,6 +127,25 @@ void debug_init(DEBUG_INST_t * debug) {
 	debug->id = id_counter++;
 }
 
+static void debug_get_status(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = ERROR_LO;
+	resp[1] = ERROR_HI;
+	*resp_len = 2;
+}
+
+static void debug_boot(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = ERROR_LO;
+	resp[1] = ERROR_HI;
+	*resp_len = 2;
+}
+
+
+static void debug_shutdown(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = ERROR_LO;
+	resp[1] = ERROR_HI;
+	*resp_len = 2;
+}
+
 static void debug_download(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
 	//downloads 5 samples at a certain location
 	if(data_len == DOWNLOAD_LEN) {
@@ -150,10 +171,19 @@ static void debug_tvc_move(uint8_t * data, uint16_t data_len, uint8_t * resp, ui
 	}
 }
 
-
-static void debug_get_status(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-
+static void debug_abort(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = ERROR_LO;
+	resp[1] = ERROR_HI;
+	*resp_len = 2;
 }
+
+static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = ERROR_LO;
+	resp[1] = ERROR_HI;
+	*resp_len = 2;
+}
+
+
 
 
 

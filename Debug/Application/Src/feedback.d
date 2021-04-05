@@ -51,7 +51,8 @@ Application/Src/feedback.o: ../Application/Src/feedback.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_qspi.h \
  ../Application/Inc/util.h ../Application/Inc/servo_def.h \
- ../Application/Inc/can_comm.h
+ ../Application/Inc/can_comm.h ../Application/Inc/cm4.h \
+ ../Application/Inc/msv2.h
 
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
 
@@ -168,3 +169,7 @@ Application/Src/feedback.o: ../Application/Src/feedback.c \
 ../Application/Inc/servo_def.h:
 
 ../Application/Inc/can_comm.h:
+
+../Application/Inc/cm4.h:
+
+../Application/Inc/msv2.h:
