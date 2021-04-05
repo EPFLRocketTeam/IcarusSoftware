@@ -138,7 +138,6 @@ void storage_init() {
 	record_active = 0;
 	restart_required = 0;
 	storage_sem = xSemaphoreCreateBinaryStatic(&storage_sem_buffer);
-	control_release();
 }
 
 

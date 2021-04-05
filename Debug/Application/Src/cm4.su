@@ -1,0 +1,2 @@
+cm4.c:64:6:cm4_init	16	static
+cm4.c:72:14:cm4_decode_fcn	24	static

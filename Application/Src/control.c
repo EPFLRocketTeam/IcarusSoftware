@@ -54,8 +54,14 @@
 
 static CONTROL_INST_t control;
 
+
+//Authorisations table
 static CONTROL_SCHED_t sched_allowed[][SCHED_ALLOWED_WIDTH] = {
-		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//IDLE
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//IDLE
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//BOOT
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//COMPUTE
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING}, 	//ABORT
+		{CONTROL_SCHED_ABORT, CONTROL_SCHED_MOVE_TVC, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING, CONTROL_SCHED_NOTHING} 	//ERROR
 };
 
 /**********************
@@ -66,11 +72,15 @@ static void control_update(CONTROL_INST_t * control);
 
 // Enter state functions
 static void init_idle(CONTROL_INST_t * control);
+static void init_boot(CONTROL_INST_t * control);
+static void init_compute(CONTROL_INST_t * control);
 static void init_abort(CONTROL_INST_t * control);
 static void init_error(CONTROL_INST_t * control);
 
 // Main state functions
 static void idle(CONTROL_INST_t * control);
+static void boot(CONTROL_INST_t * control);
+static void compute(CONTROL_INST_t * control);
 static void _abort(CONTROL_INST_t * control);
 static void error(CONTROL_INST_t * control);
 
@@ -79,6 +89,15 @@ static void error(CONTROL_INST_t * control);
 static uint8_t control_sched_should_run(CONTROL_INST_t * control, CONTROL_SCHED_t num);
 static void control_sched_done(CONTROL_INST_t * control, CONTROL_SCHED_t num);
 static void control_sched_set(CONTROL_INST_t * control, CONTROL_SCHED_t num);
+
+
+static void (*control_fcn[])(CONTROL_INST_t *) = {
+		idle,
+		boot,
+		compute,
+		_abort,
+		error
+};
 
 
 /**********************
@@ -105,14 +124,6 @@ void control_thread(void * arg) {
 	servo_config(&tvc_servo);
 
 	control.tvc_servo = &tvc_servo;
-
-
-
-
-
-
-
-	//hang for recovery information from storage
 
 
 	init_idle(&control);
@@ -142,19 +153,8 @@ void control_thread(void * arg) {
 		control_update(&control);
 
 
-		switch(control.state) {
-		case CS_IDLE:
-			idle(&control);
-			break;
-		case CS_ABORT:
-			_abort(&control);
-			break;
-		case CS_ERROR:
-			error(&control);
-			break;
-		default:
-			control.state = CS_ERROR;
-			break;
+		if(control.state < CS_NUM && control.state > 0) {
+			control_fcn[control.state](&control);
 		}
 		vTaskDelayUntil( &last_wake_time, period );
 	}
@@ -179,9 +179,6 @@ static void control_update(CONTROL_INST_t * control) {
 		}
 	}
 
-
-
-
 	//read servo parameters
 	servo_sync(control->tvc_servo);
 
@@ -197,8 +194,6 @@ static void control_update(CONTROL_INST_t * control) {
 static void init_control(CONTROL_INST_t * control) {
 	control->sched = CONTROL_SCHED_NOTHING;
 	control->counter_active = 0;
-	control->needs_recover = 0;
-	control->hang_for_recovery = 1;
 }
 
 static void init_idle(CONTROL_INST_t * control) {
@@ -215,6 +210,23 @@ static void idle(CONTROL_INST_t * control) {
 
 }
 
+static void init_boot(CONTROL_INST_t * control) {
+	//global enable
+	//to boot the rpi
+}
+
+static void boot(CONTROL_INST_t * control) {
+	//wait for the cm4 to start answering with concluent status packets
+}
+
+static void init_compute(CONTROL_INST_t * control) {
+	//start sending data to raspberry pi
+}
+
+static void compute(CONTROL_INST_t * control) {
+
+}
+
 static void init_abort(CONTROL_INST_t * control) {
 	led_set_color(LED_PINK);
 	control->state = CS_ABORT;
@@ -224,8 +236,6 @@ static void init_abort(CONTROL_INST_t * control) {
 }
 
 static void _abort(CONTROL_INST_t * control) {
-
-
 	if(control_sched_should_run(control, CONTROL_SCHED_RECOVER)) {
 		init_idle(control);
 		control_sched_done(control, CONTROL_SCHED_RECOVER);
@@ -257,6 +267,10 @@ void control_move_tvc(int32_t target) {
 	control.tvc_mov_target = target;
 }
 
+void control_boot(void) {
+
+}
+
 void control_abort() {
 	control_sched_set(&control, CONTROL_SCHED_ABORT);
 }
@@ -273,11 +287,6 @@ CONTROL_STATUS_t control_get_status() {
 	status.tvc_position = control.tvc_servo->position;
 
 	return status;
-}
-
-
-void control_release() {
-	control.hang_for_recovery = 0;
 }
 
 

@@ -244,7 +244,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     PC6     ------> USART6_TX
     PC7     ------> USART6_RX
     */
-    GPIO_InitStruct.Pin = MOTOR_TX_Pin|MOTOR_RX_Pin;
+    GPIO_InitStruct.Pin = CM4_TX_Pin|CM4_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -361,7 +361,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PC6     ------> USART6_TX
     PC7     ------> USART6_RX
     */
-    HAL_GPIO_DeInit(GPIOC, MOTOR_TX_Pin|MOTOR_RX_Pin);
+    HAL_GPIO_DeInit(GPIOC, CM4_TX_Pin|CM4_RX_Pin);
 
     /* USART6 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);

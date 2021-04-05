@@ -1,5 +1,7 @@
 "Application/Src/can_comm.o"
+"Application/Src/cm4.o"
 "Application/Src/control.o"
+"Application/Src/debug.o"
 "Application/Src/dsv2.o"
 "Application/Src/feedback.o"
 "Application/Src/led.o"

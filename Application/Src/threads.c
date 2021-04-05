@@ -17,6 +17,7 @@
 #include <control.h>
 #include <storage.h>
 #include <serial.h>
+#include <debug.h>
 
 #include <can_comm.h>
 
@@ -89,6 +90,8 @@ void threads_init(void) {
 
 
 	serial_global_init();
+	static DEBUG_INST_t debug;
+	debug_init(&debug);
 
 	can_init();
 

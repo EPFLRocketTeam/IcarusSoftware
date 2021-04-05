@@ -37,8 +37,11 @@
 
 typedef enum CONTROL_STATE{
 	CS_IDLE = 0x00,
-	CS_ABORT  = 0x08,
-	CS_ERROR  = 0x09
+	CS_BOOT = 0x01,
+	CS_COMPUTE = 0x02,
+	CS_ABORT  = 0x03,
+	CS_ERROR  = 0x04,
+	CS_NUM
 }CONTROL_STATE_t;
 
 
@@ -78,8 +81,6 @@ typedef struct CONTROL_INST{
 	uint8_t tvc_mov_started;
 	CONTROL_SCHED_t sched;
 	CAN_msg msg;
-	uint8_t needs_recover;
-	uint8_t hang_for_recovery;
 }CONTROL_INST_t;
 
 
@@ -104,10 +105,9 @@ CONTROL_STATE_t control_get_state();
 
 void control_move_tvc(int32_t target);
 
+void control_boot(void);
 void control_abort(void);
 void control_recover(void);
-
-void control_release();
 
 
 

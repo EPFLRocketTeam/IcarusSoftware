@@ -58,16 +58,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define PRES_1_Pin GPIO_PIN_0
-#define PRES_1_GPIO_Port GPIOC
-#define TEMP_1_Pin GPIO_PIN_0
-#define TEMP_1_GPIO_Port GPIOA
-#define TEMP_2_Pin GPIO_PIN_1
-#define TEMP_2_GPIO_Port GPIOA
-#define PRES_2_Pin GPIO_PIN_2
-#define PRES_2_GPIO_Port GPIOA
-#define TEMP_3_Pin GPIO_PIN_3
-#define TEMP_3_GPIO_Port GPIOA
 #define LED_RED_Pin GPIO_PIN_7
 #define LED_RED_GPIO_Port GPIOA
 #define DEBUG_RX_Pin GPIO_PIN_5
@@ -78,16 +68,12 @@ void Error_Handler(void);
 #define LED_GREEN_GPIO_Port GPIOB
 #define LED_BLUE_Pin GPIO_PIN_15
 #define LED_BLUE_GPIO_Port GPIOB
-#define MOTOR_TX_Pin GPIO_PIN_6
-#define MOTOR_TX_GPIO_Port GPIOC
-#define MOTOR_RX_Pin GPIO_PIN_7
-#define MOTOR_RX_GPIO_Port GPIOC
+#define CM4_TX_Pin GPIO_PIN_6
+#define CM4_TX_GPIO_Port GPIOC
+#define CM4_RX_Pin GPIO_PIN_7
+#define CM4_RX_GPIO_Port GPIOC
 #define SERVO_TX_Pin GPIO_PIN_9
 #define SERVO_TX_GPIO_Port GPIOA
-#define BUZZER_Pin GPIO_PIN_15
-#define BUZZER_GPIO_Port GPIOA
-#define SOLENOID_Pin GPIO_PIN_7
-#define SOLENOID_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
