@@ -51,6 +51,10 @@
  *	CONSTANTS
  **********************/
 
+#define COMM_TIMEOUT 10
+
+#define GARBAGE_THRESHOLD 10
+
 
 /**********************
  *	MACROS
@@ -68,14 +72,21 @@
  **********************/
 
 
-static uint8_t is_booted(void);
-static void allow_boot(void);
-static void hold_boot(void);
+
+static SemaphoreHandle_t cm4_busy_sem = NULL;
+static StaticSemaphore_t cm4_busy_sem_buffer;
+
+
+
 
 
 /**********************
  *	PROTOTYPES
  **********************/
+
+static uint8_t is_booted(void);
+static void allow_boot(void);
+static void hold_boot(void);
 
 SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data);
 
@@ -83,21 +94,55 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data);
  *	DECLARATIONS
  **********************/
 
+void cm4_global_init(void) {
+	cm4_busy_sem = xSemaphoreCreateMutexStatic(&cm4_busy_sem_buffer);
+}
+
 void cm4_init(CM4_INST_t * cm4) {
 	static uint32_t id_counter = 0;
 	cm4->id = id_counter++;
+	cm4->garbage_counter = 0;
+	cm4->rx_sem = xSemaphoreCreateBinaryStatic(&cm4->rx_sem_buffer);
 	msv2_init(&cm4->msv2);
-	serial_init(&cm4->ser, &CM4_UART, &cm4->msv2, cm4_decode_fcn);
+	serial_init(&cm4->ser, &CM4_UART, cm4, cm4_decode_fcn);
+
+
 }
 
 
 SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
-	MSV2_INST_t * msv2 = (MSV2_INST_t *) inst;
-	MSV2_ERROR_t tmp = msv2_decode_fragment(msv2, data);
+	CM4_INST_t * cm4 = (CM4_INST_t *) inst;
+	MSV2_ERROR_t tmp = msv2_decode_fragment(&cm4->msv2, data);
 	if(tmp == MSV2_SUCCESS || tmp == MSV2_WRONG_CRC) {
-		//DO something with the reception
+		xSemaphoreGive(cm4->rx_sem);
 	}
 	return tmp;
+}
+
+
+
+CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t *resp_data, uint16_t *resp_len) {
+	uint16_t frame_length = msv2_create_frame(&cm4->msv2, cmd, length/2, data);
+	serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), frame_length);
+	if(xSemaphoreTake(cm4->rx_sem, COMM_TIMEOUT) == pdTRUE) {
+		cm4->garbage_counter = 0;
+		return CM4_SUCCESS;
+	} else {
+		cm4->garbage_counter++;
+		if(cm4->garbage_counter > GARBAGE_THRESHOLD) {
+			serial_garbage_clean(&cm4->ser);
+		}
+		return CM4_TIMEOUT;
+	}
+
+}
+
+CM4_ERROR_t cm4_ping(CM4_INST_t * cm4) {
+	CM4_ERROR_t error = 0;
+	uint8_t data[] = {0xc5, 0x5c};
+	error |= cm4_send(cm4, CM4_PING, data, 2, NULL, NULL);
+
+	return error;
 }
 
 
@@ -115,20 +160,20 @@ CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready) {
 	if(ready == NULL){
 		return CM4_LOCAL_ERROR;
 	}
+	*ready = 0;
 	if(is_booted()) {
-		//check wheter the CM4 answers
-		//if answers
-		*ready = 1;
-		return CM4_SUCCESS;
-
-	} else {
-		*ready = 0;
-		return CM4_SUCCESS;
+		if(cm4_ping(cm4) == CM4_SUCCESS) {
+			*ready = 1;
+		}
 	}
+	return CM4_SUCCESS;
 }
 
 CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
 	//send shutdown command through uart
+	uint8_t data[] = {0xc8, 0x8c};
+	cm4_send(cm4, CM4_SHUTDOWN, data, 2, NULL, NULL);
+
 	return CM4_SUCCESS;
 }
 

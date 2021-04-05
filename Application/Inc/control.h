@@ -75,6 +75,7 @@ typedef struct CONTROL_STATUS {
 
 typedef struct CONTROL_INST{
 	CONTROL_STATE_t state;
+	CONTROL_STATE_t shadow_state;
 	uint32_t time;
 	uint32_t last_time;
 	int32_t counter;

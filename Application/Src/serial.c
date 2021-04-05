@@ -59,15 +59,22 @@ static StaticSemaphore_t serial_rx_sem_buffer;
  */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	for(uint16_t i = 0; i < serial_devices_count; i++) {
 		if(serial_devices[i]->uart == huart) {
 			util_buffer_u8_add(&serial_devices[i]->bfr, serial_devices[i]->dma_buffer);
 			xSemaphoreGiveFromISR( serial_rx_sem, &xHigherPriorityTaskWoken );
+			if(i==2) {
+				break;
+			}
 			break;
 		}
 	}
 	portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	UART_HandleTypeDef * lol = huart;
 }
 
 
@@ -95,6 +102,9 @@ void serial_send(SERIAL_INST_t * ser, uint8_t * data, uint16_t length) {
 	//HAL_UART_Transmit(ser->uart, data, length, 500);
 }
 
+void serial_garbage_clean(SERIAL_INST_t * ser) {
+	HAL_UART_Receive_DMA(ser->uart, &ser->dma_buffer, 1);
+}
 
 void serial_thread(void * arg) {
 

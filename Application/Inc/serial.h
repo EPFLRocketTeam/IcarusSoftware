@@ -71,6 +71,8 @@ extern "C"{
 
 void serial_global_init();
 
+void serial_garbage_clean(SERIAL_INST_t * ser);
+
 void serial_init(SERIAL_INST_t * ser, UART_HandleTypeDef * uart, void * inst, SERIAL_RET_t (*decode_fcn)(void *, uint8_t));
 
 void serial_send(SERIAL_INST_t * ser, uint8_t * data, uint16_t length);

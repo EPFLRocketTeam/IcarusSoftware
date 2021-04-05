@@ -18,10 +18,15 @@
 #include <stdint.h>
 #include <msv2.h>
 #include <serial.h>
+#include <cmsis_os.h>
 
 /**********************
  *  CONSTANTS
  **********************/
+
+#define CM4_PING		0x00
+#define CM4_SHUTDOWN	0x01
+#define CM4_PAYLOAD		0x02
 
 
 /**********************
@@ -53,7 +58,9 @@ typedef struct CM4_INST {
 	uint32_t id;
 	MSV2_INST_t msv2;
 	SERIAL_INST_t ser;
-
+	SemaphoreHandle_t rx_sem;
+	StaticSemaphore_t rx_sem_buffer;
+	uint16_t garbage_counter;
 }CM4_INST_t;
 
 typedef struct CM4_PAYLOAD_SENSOR {
@@ -79,11 +86,13 @@ typedef struct CM4_PAYLOAD_COMMAND {
 extern "C"{
 #endif
 
-
+void cm4_global_init(void);
 void cm4_init(CM4_INST_t * servo);
 
 
 SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data);
+
+CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t *resp_data, uint16_t *resp_len);
 
 CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_COMMAND_t * cmd, CM4_PAYLOAD_SENSOR_t * sens);
 

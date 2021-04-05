@@ -130,6 +130,8 @@ void control_thread(void * arg) {
 
 	control.tvc_servo = &tvc_servo;
 
+	cm4_global_init();
+
 	static CM4_INST_t cm4;
 
 	cm4_init(&cm4);
@@ -273,6 +275,7 @@ static void shutdown(CONTROL_INST_t * control) {
 
 static void init_abort(CONTROL_INST_t * control) {
 	led_set_color(LED_PINK);
+	control->shadow_state = control->state;
 	control->state = CS_ABORT;
 	servo_move(control->tvc_servo, 2048); //2048 is the straight position
 	control->counter_active=0;
