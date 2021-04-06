@@ -64,11 +64,22 @@ typedef struct CM4_INST {
 }CM4_INST_t;
 
 typedef struct CM4_PAYLOAD_SENSOR {
-	uint32_t dummy;
+	uint32_t timestamp;
+	int32_t acc_x;
+	int32_t acc_y;
+	int32_t acc_z;
+	int32_t gyro_x;
+	int32_t gyro_y;
+	int32_t gyro_z;
+	int32_t baro;
+	int32_t cc_pressure;
+	int32_t dynamixel[4];
 }CM4_PAYLOAD_SENSOR_t;
 
 typedef struct CM4_PAYLOAD_COMMAND {
-	uint32_t dummy;
+	uint32_t timestamp;
+	int32_t thrust;
+	int32_t dynamixel[4];
 }CM4_PAYLOAD_COMMAND_t;
 
 

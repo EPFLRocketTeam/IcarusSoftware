@@ -145,7 +145,7 @@ def ping_cb(stat):
 
     if(stat and len(stat) == 20):
         data = struct.unpack("HHiIiHBb", bytes(stat))
-        #data [state, counter, memory, tvc_pos, tvc_psu, tvc_error, tvc_temp]
+        #data [state, padding, counter, memory, tvc_pos, tvc_psu, tvc_error, tvc_temp]
         state = data[0]
         status_state = state
         window.status_state.clear()
