@@ -253,7 +253,6 @@ static void init_compute(CONTROL_INST_t * control) {
 
 static void compute(CONTROL_INST_t * control) {
 
-	control->sensor_payload.acc_z = 41;
 	cm4_transaction(control->cm4, &control->sensor_payload, &control->command_payload);
 
 	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {

@@ -60,6 +60,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>0</string>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -79,6 +82,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -100,6 +106,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>-9.81</string>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
@@ -119,6 +128,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -140,6 +152,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>0</string>
+            </property>
            </widget>
           </item>
           <item row="5" column="0">
@@ -159,6 +174,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -180,6 +198,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>0</string>
+            </property>
            </widget>
           </item>
           <item row="7" column="0">
@@ -200,6 +221,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>0</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -211,6 +235,16 @@
           <string>Command</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="trans_thrust">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
@@ -221,13 +255,13 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="trans_thrust">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>DYNAMIXEL 3</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -241,6 +275,26 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="trans_dyn_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="trans_dyn_3">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="trans_dyn_0">
             <property name="sizePolicy">
@@ -248,6 +302,16 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>DYNAMIXEL 4</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -271,43 +335,10 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_14">
+          <item row="5" column="1">
+           <widget class="QPushButton" name="trans_btn">
             <property name="text">
-             <string>DYNAMIXEL 3</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="trans_dyn_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_23">
-            <property name="text">
-             <string>DYNAMIXEL 4</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="trans_dyn_3">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+             <string>Transaction</string>
             </property>
            </widget>
           </item>

@@ -213,9 +213,17 @@ static void debug_transaction(uint8_t * data, uint16_t data_len, uint8_t * resp,
 		sens_data.baro = util_decode_i32(data+24);
 		sens_data.cc_pressure = util_decode_i32(data+28);
 
-		resp[0] = ERROR_LO;
-		resp[1] = ERROR_HI;
-		*resp_len = 2;
+		control_set_sens(sens_data);
+
+		CM4_PAYLOAD_COMMAND_t cmd_data = control_get_cmd();
+
+		util_encode_i32(resp, cmd_data.thrust);
+		util_encode_i32(resp+4, cmd_data.dynamixel[0]);
+		util_encode_i32(resp+8, cmd_data.dynamixel[1]);
+		util_encode_i32(resp+12, cmd_data.dynamixel[2]);
+		util_encode_i32(resp+16, cmd_data.dynamixel[3]);
+
+		*resp_len = TRANSACTION_CMD_LEN;
 	} else {
 		resp[0] = ERROR_LO;
 		resp[1] = ERROR_HI;

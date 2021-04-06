@@ -7,12 +7,6 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget
 from PySide2.QtCore import QFile, QIODevice, QThread, QObject, Slot, Signal, QTimer
 
-from matplotlib.backends.qt_compat import QtWidgets
-
-import matplotlib
-
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 import numpy as np
 
@@ -110,6 +104,30 @@ def tvc_motor_move_trig():
     bin_data = struct.pack("i", target)
     serial_worker.send_generic(TVC_MOVE, bin_data)
 
+def transaction_trig():
+    acc_x = safe_int(window.trans_acc_x.text())
+    acc_y = safe_int(window.trans_acc_y.text())
+    acc_z = safe_int(window.trans_acc_z.text())
+
+    gyro_x = safe_int(window.trans_gyro_x.text())
+    gyro_y = safe_int(window.trans_gyro_y.text())
+    gyro_z = safe_int(window.trans_gyro_z.text())
+
+    baro = safe_int(window.trans_baro.text())
+    cc_pres = safe_int(window.trans_cc_pres.text())
+    bin_data = struct.pack("iii"+"iii"+"ii", 
+                            acc_x,
+                            acc_y,
+                            acc_z,
+                            gyro_x,
+                            gyro_y,
+                            gyro_z,
+                            baro,
+                            cc_pres)
+
+
+    serial_worker.send_generic(TRANSACTION, bin_data)
+
 def boot_trig():
     serial_worker.send_generic(BOOT, [0x00, 0x00])
 
@@ -164,6 +182,24 @@ def ping_cb(stat):
         window.tvc_motor_current.insert(str(dyn2deg(data[4])))
         window.tvc_error.insert(hex(data[6]))
         window.tvc_temperature.insert(str(data[7]))
+
+
+
+
+def transaction_cb(cmd):
+    if(cmd and len(cmd) == 20):
+        data = struct.unpack("i"+"iiii", bytes(cmd))
+        window.trans_thrust.clear()
+        window.trans_dyn_0.clear()
+        window.trans_dyn_1.clear()
+        window.trans_dyn_2.clear()
+        window.trans_dyn_3.clear()
+        window.trans_thrust.insert(str(data[0]))
+        window.trans_dyn_0.insert(str(data[1]))
+        window.trans_dyn_1.insert(str(data[2]))
+        window.trans_dyn_2.insert(str(data[3]))
+        window.trans_dyn_3.insert(str(data[4]))
+
 
 
     
@@ -237,6 +273,7 @@ class Serial_worker(QObject):
     update_status_sig = Signal(list) #status
     connect_sig = Signal(str)
     download_sig = Signal(list, int)
+    transaction_sig = Signal(list)
 
     def __init__(self):
         QObject.__init__(self)
@@ -261,6 +298,8 @@ class Serial_worker(QObject):
         if self.msv2.is_connected():
             resp = self.msv2.send(opcode, data)
             print("generic: ",'[{}]'.format(', '.join(hex(x) for x in resp)))
+            if opcode == TRANSACTION:
+                self.transaction_sig.emit(resp)
 
     @Slot()
     def download(self):
@@ -367,6 +406,7 @@ if __name__ == "__main__":
     serial_worker.connect_sig.connect(connect_cb)
     serial_worker.update_status_sig.connect(ping_cb)
     serial_worker.download_sig.connect(download_cb)
+    serial_worker.transaction_sig.connect(transaction_cb)
 
     #start worker thread
     worker_thread.start()
@@ -387,6 +427,13 @@ if __name__ == "__main__":
     window.local_record.clicked.connect(start_record)
     window.download.clicked.connect(download_trig)
     window.tvc_motor_move.clicked.connect(tvc_motor_move_trig)
+
+    window.trans_btn.clicked.connect(transaction_trig)
+
+    transaction_timer = QTimer()
+    transaction_timer.timeout.connect(transaction_trig)
+    transaction_timer.start(0.5)
+
 
     window.show()
 
