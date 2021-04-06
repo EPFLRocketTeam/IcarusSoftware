@@ -252,6 +252,10 @@ static void init_compute(CONTROL_INST_t * control) {
 }
 
 static void compute(CONTROL_INST_t * control) {
+
+	control->sensor_payload.acc_z = 41;
+	cm4_transaction(control->cm4, &control->sensor_payload, &control->command_payload);
+
 	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {
 		init_shutdown(control);
 		control_sched_done(control, CONTROL_SCHED_SHUTDOWN);
@@ -339,6 +343,14 @@ CONTROL_STATUS_t control_get_status() {
 	status.tvc_position = control.tvc_servo->position;
 
 	return status;
+}
+
+void control_set_sens(CM4_PAYLOAD_SENSOR_t sens) {
+	control.sensor_payload = sens;
+}
+
+CM4_PAYLOAD_COMMAND_t control_get_cmd(void) {
+	return control.command_payload;
 }
 
 

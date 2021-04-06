@@ -32,6 +32,8 @@
 
 #define DOWNLOAD_LEN  (4)
 #define TVC_MOVE_LEN  (4)
+#define TRANSACTION_SENS_LEN  (32)
+#define TRANSACTION_CMD_LEN  (20)
 
 
 
@@ -71,6 +73,7 @@ static void debug_download(uint8_t * data, uint16_t data_len, uint8_t * resp, ui
 static void debug_tvc_move(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_abort(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_transaction(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 
 
 /**********************
@@ -83,7 +86,8 @@ static void (*debug_fcn[]) (uint8_t *, uint16_t, uint8_t *, uint16_t *) = {
 		debug_download,		//0x03
 		debug_tvc_move,		//0x04
 		debug_abort,		//0x05
-		debug_recover		//0x06
+		debug_recover,		//0x06
+		debug_transaction	//0x07
 };
 
 static uint16_t debug_fcn_max = sizeof(debug_fcn) / sizeof(void *);
@@ -195,6 +199,29 @@ static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uin
 	*resp_len = 2;
 }
 
+static void debug_transaction(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	if(data_len == TRANSACTION_SENS_LEN) {
+		CM4_PAYLOAD_SENSOR_t sens_data = {0};
+		sens_data.acc_x = util_decode_i32(data);
+		sens_data.acc_y = util_decode_i32(data+4);
+		sens_data.acc_z = util_decode_i32(data+8);
+
+		sens_data.gyro_x = util_decode_i32(data+12);
+		sens_data.gyro_y = util_decode_i32(data+16);
+		sens_data.gyro_z = util_decode_i32(data+20);
+
+		sens_data.baro = util_decode_i32(data+24);
+		sens_data.cc_pressure = util_decode_i32(data+28);
+
+		resp[0] = ERROR_LO;
+		resp[1] = ERROR_HI;
+		*resp_len = 2;
+	} else {
+		resp[0] = ERROR_LO;
+		resp[1] = ERROR_HI;
+		*resp_len = 2;
+	}
+}
 
 
 

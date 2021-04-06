@@ -103,9 +103,9 @@ void cm4_init(CM4_INST_t * servo);
 
 SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data);
 
-CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t *resp_data, uint16_t *resp_len);
+CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t ** resp_data, uint16_t * resp_len);
 
-CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_COMMAND_t * cmd, CM4_PAYLOAD_SENSOR_t * sens);
+CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_PAYLOAD_COMMAND_t * cmd);
 
 CM4_ERROR_t cm4_boot(CM4_INST_t * cm4);
 

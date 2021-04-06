@@ -87,6 +87,8 @@ typedef struct CONTROL_INST{
 	uint8_t tvc_mov_started;
 	CONTROL_SCHED_t sched;
 	CAN_msg msg;
+	CM4_PAYLOAD_SENSOR_t sensor_payload;
+	CM4_PAYLOAD_COMMAND_t command_payload;
 }CONTROL_INST_t;
 
 
@@ -110,6 +112,10 @@ void control_thread(void * arg);
 CONTROL_STATE_t control_get_state();
 
 CONTROL_STATUS_t control_get_status();
+
+void control_set_sens(CM4_PAYLOAD_SENSOR_t sens);
+
+CM4_PAYLOAD_COMMAND_t control_get_cmd(void);
 
 void control_move_tvc(int32_t target);
 void control_boot(void);

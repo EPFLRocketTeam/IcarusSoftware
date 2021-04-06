@@ -121,12 +121,29 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 
 
 
-CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t *resp_data, uint16_t *resp_len) {
+CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t ** resp_data, uint16_t * resp_len) {
 	uint16_t frame_length = msv2_create_frame(&cm4->msv2, cmd, length/2, data);
 	serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), frame_length);
+	if(cm4->rx_sem == NULL) {
+		return CM4_LOCAL_ERROR;
+	}
 	if(xSemaphoreTake(cm4->rx_sem, COMM_TIMEOUT) == pdTRUE) {
 		cm4->garbage_counter = 0;
-		return CM4_SUCCESS;
+		if(cm4->msv2.rx.opcode == cmd) {
+			if(resp_len != NULL && resp_data != NULL) {
+				*resp_len = cm4->msv2.rx.length;
+				*resp_data = cm4->msv2.rx.data;
+			}
+			return CM4_SUCCESS;
+		} else {
+			if(resp_len != NULL) {
+				*resp_len = 0;
+			}
+			return CM4_REMOTE_ERROR;
+		}
+
+
+
 	} else {
 		cm4->garbage_counter++;
 		if(cm4->garbage_counter > GARBAGE_THRESHOLD) {
@@ -146,7 +163,41 @@ CM4_ERROR_t cm4_ping(CM4_INST_t * cm4) {
 }
 
 
-CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_COMMAND_t * cmd, CM4_PAYLOAD_SENSOR_t * sens) {
+CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_PAYLOAD_COMMAND_t * cmd) {
+	CM4_ERROR_t error = 0;
+	uint8_t * recv_data;
+	uint16_t recv_len = 0;
+	uint16_t send_len = 52;
+	uint8_t send_data[52];
+
+	util_encode_u32(send_data, sens->timestamp);
+	util_encode_i32(send_data+4, sens->acc_x);
+	util_encode_i32(send_data+8, sens->acc_y);
+	util_encode_i32(send_data+12, sens->acc_z);
+
+	util_encode_i32(send_data+16, sens->gyro_x);
+	util_encode_i32(send_data+20, sens->gyro_y);
+	util_encode_i32(send_data+24, sens->gyro_z);
+
+	util_encode_i32(send_data+28, sens->baro);
+	util_encode_i32(send_data+32, sens->cc_pressure);
+
+	util_encode_i32(send_data+36, sens->dynamixel[0]);
+	util_encode_i32(send_data+40, sens->dynamixel[1]);
+	util_encode_i32(send_data+44, sens->dynamixel[2]);
+	util_encode_i32(send_data+48, sens->dynamixel[3]);
+
+	error |= cm4_send(cm4, CM4_PAYLOAD, send_data, send_len , &recv_data, &recv_len);
+
+	if(recv_len == 24) {
+		cmd->timestamp = util_decode_u32(recv_data);
+		cmd->thrust = util_decode_i32(recv_data+4);
+
+		cmd->dynamixel[0] = util_decode_i32(recv_data+8);
+		cmd->dynamixel[1] = util_decode_i32(recv_data+12);
+		cmd->dynamixel[2] = util_decode_i32(recv_data+16);
+		cmd->dynamixel[3] = util_decode_i32(recv_data+20);
+	}
 
 	return CM4_SUCCESS;
 }
