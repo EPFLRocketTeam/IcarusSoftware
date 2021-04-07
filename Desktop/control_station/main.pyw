@@ -297,6 +297,8 @@ class Serial_worker(QObject):
     def send_generic(self, opcode, data):
         if self.msv2.is_connected():
             resp = self.msv2.send(opcode, data)
+            if resp == 0 or resp == -1:
+                return
             print("generic: ",'[{}]'.format(', '.join(hex(x) for x in resp)))
             if opcode == TRANSACTION:
                 self.transaction_sig.emit(resp)
@@ -387,6 +389,9 @@ if __name__ == "__main__":
         COM_PORT = res
     else:
         COM_PORT = 'COM4'
+
+    if platform.system() == 'Linux':
+    	COM_PORT ='/dev/ttyACM0'
 
     print(type(COM_PORT))
     if(type(COM_PORT)==str):

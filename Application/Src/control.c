@@ -22,7 +22,7 @@
  *	CONFIGURATION
  **********************/
 
-#define CONTROL_HEART_BEAT	50 /* ms */
+#define CONTROL_HEART_BEAT	10 /* ms */
 
 
 
@@ -38,6 +38,8 @@
 #define SCHED_ALLOWED_WIDTH	(6)
 
 #define CONTROL_SAVE_DELAY	(5000)
+
+#define USE_DYNAMIXEL 0
 
 /**********************
  *	MACROS
@@ -120,6 +122,8 @@ void control_thread(void * arg) {
 
 	init_control(&control);
 
+#if USE_DYNAMIXEL == 1
+
 	static SERVO_INST_t tvc_servo;
 
 	servo_global_init();
@@ -129,6 +133,7 @@ void control_thread(void * arg) {
 	servo_config(&tvc_servo);
 
 	control.tvc_servo = &tvc_servo;
+#endif
 
 	cm4_global_init();
 
@@ -148,7 +153,7 @@ void control_thread(void * arg) {
 
 	for(;;) {
 
-
+#if USE_DYNAMIXEL == 1
 		static uint8_t lol = 0;
 		static uint16_t cnt = 0;
 		if(cnt++ > 10) {
@@ -161,7 +166,7 @@ void control_thread(void * arg) {
 		} else {
 			servo_disable_led(control.tvc_servo, NULL);
 		}
-
+#endif
 
 		control_update(&control);
 
@@ -191,10 +196,10 @@ static void control_update(CONTROL_INST_t * control) {
 
 		}
 	}
-
+#if USE_DYNAMIXEL == 1
 	//read servo parameters
 	servo_sync(control->tvc_servo);
-
+#endif
 
 	//init error if there is an issue with a motor
 
@@ -216,11 +221,12 @@ static void init_idle(CONTROL_INST_t * control) {
 }
 
 static void idle(CONTROL_INST_t * control) {
+#if USE_DYNAMIXEL == 1
 	if(control_sched_should_run(control, CONTROL_SCHED_MOVE_TVC)) {
 		servo_move(control->tvc_servo, control->tvc_mov_target);
 		control_sched_done(control, CONTROL_SCHED_MOVE_TVC);
 	}
-
+#endif
 	if(control_sched_should_run(control, CONTROL_SCHED_BOOT)) {
 		init_boot(control);
 		control_sched_done(control, CONTROL_SCHED_BOOT);
@@ -280,7 +286,9 @@ static void init_abort(CONTROL_INST_t * control) {
 	led_set_color(LED_PINK);
 	control->shadow_state = control->state;
 	control->state = CS_ABORT;
+#if USE_DYNAMIXEL == 1
 	servo_move(control->tvc_servo, 2048); //2048 is the straight position
+#endif
 	control->counter_active=0;
 	storage_disable();
 }
