@@ -222,7 +222,7 @@ CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready) {
 
 CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
 	//send shutdown command through uart
-	uint8_t data[] = {0xc8, 0x8c};
+	uint8_t data[] = {0x00, 0x00};
 	cm4_send(cm4, CM4_SHUTDOWN, data, 2, NULL, NULL);
 
 	return CM4_SUCCESS;

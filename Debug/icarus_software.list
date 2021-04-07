@@ -1582,73 +1582,74 @@ CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
  8000cd6:	af02      	add	r7, sp, #8
  8000cd8:	6078      	str	r0, [r7, #4]
 	//send shutdown command through uart
-	uint8_t data[] = {0xc8, 0x8c};
- 8000cda:	f648 43c8 	movw	r3, #36040	; 0x8cc8
- 8000cde:	81bb      	strh	r3, [r7, #12]
+	uint8_t data[] = {0x00, 0x00};
+ 8000cda:	2300      	movs	r3, #0
+ 8000cdc:	81bb      	strh	r3, [r7, #12]
 	cm4_send(cm4, CM4_SHUTDOWN, data, 2, NULL, NULL);
- 8000ce0:	f107 020c 	add.w	r2, r7, #12
- 8000ce4:	2300      	movs	r3, #0
- 8000ce6:	9301      	str	r3, [sp, #4]
- 8000ce8:	2300      	movs	r3, #0
- 8000cea:	9300      	str	r3, [sp, #0]
- 8000cec:	2302      	movs	r3, #2
- 8000cee:	2101      	movs	r1, #1
- 8000cf0:	6878      	ldr	r0, [r7, #4]
- 8000cf2:	f7ff fe57 	bl	80009a4 <cm4_send>
+ 8000cde:	f107 020c 	add.w	r2, r7, #12
+ 8000ce2:	2300      	movs	r3, #0
+ 8000ce4:	9301      	str	r3, [sp, #4]
+ 8000ce6:	2300      	movs	r3, #0
+ 8000ce8:	9300      	str	r3, [sp, #0]
+ 8000cea:	2302      	movs	r3, #2
+ 8000cec:	2101      	movs	r1, #1
+ 8000cee:	6878      	ldr	r0, [r7, #4]
+ 8000cf0:	f7ff fe58 	bl	80009a4 <cm4_send>
 
 	return CM4_SUCCESS;
- 8000cf6:	2300      	movs	r3, #0
+ 8000cf4:	2300      	movs	r3, #0
 }
- 8000cf8:	4618      	mov	r0, r3
- 8000cfa:	3710      	adds	r7, #16
- 8000cfc:	46bd      	mov	sp, r7
- 8000cfe:	bd80      	pop	{r7, pc}
+ 8000cf6:	4618      	mov	r0, r3
+ 8000cf8:	3710      	adds	r7, #16
+ 8000cfa:	46bd      	mov	sp, r7
+ 8000cfc:	bd80      	pop	{r7, pc}
 
-08000d00 <cm4_is_shutdown>:
+08000cfe <cm4_is_shutdown>:
 
 CM4_ERROR_t cm4_is_shutdown(CM4_INST_t * cm4, uint8_t * shutdown) {
- 8000d00:	b580      	push	{r7, lr}
- 8000d02:	b082      	sub	sp, #8
- 8000d04:	af00      	add	r7, sp, #0
- 8000d06:	6078      	str	r0, [r7, #4]
- 8000d08:	6039      	str	r1, [r7, #0]
+ 8000cfe:	b580      	push	{r7, lr}
+ 8000d00:	b082      	sub	sp, #8
+ 8000d02:	af00      	add	r7, sp, #0
+ 8000d04:	6078      	str	r0, [r7, #4]
+ 8000d06:	6039      	str	r1, [r7, #0]
 	if(shutdown == NULL){
- 8000d0a:	683b      	ldr	r3, [r7, #0]
- 8000d0c:	2b00      	cmp	r3, #0
- 8000d0e:	d101      	bne.n	8000d14 <cm4_is_shutdown+0x14>
+ 8000d08:	683b      	ldr	r3, [r7, #0]
+ 8000d0a:	2b00      	cmp	r3, #0
+ 8000d0c:	d101      	bne.n	8000d12 <cm4_is_shutdown+0x14>
 		return CM4_LOCAL_ERROR;
- 8000d10:	2308      	movs	r3, #8
- 8000d12:	e00f      	b.n	8000d34 <cm4_is_shutdown+0x34>
+ 8000d0e:	2308      	movs	r3, #8
+ 8000d10:	e00f      	b.n	8000d32 <cm4_is_shutdown+0x34>
 	}
 	if(!is_booted()) {
- 8000d14:	f000 f812 	bl	8000d3c <is_booted>
- 8000d18:	4603      	mov	r3, r0
- 8000d1a:	2b00      	cmp	r3, #0
- 8000d1c:	d106      	bne.n	8000d2c <cm4_is_shutdown+0x2c>
+ 8000d12:	f000 f813 	bl	8000d3c <is_booted>
+ 8000d16:	4603      	mov	r3, r0
+ 8000d18:	2b00      	cmp	r3, #0
+ 8000d1a:	d106      	bne.n	8000d2a <cm4_is_shutdown+0x2c>
 		//check wheter the CM4 answers
 		//if answers
 		hold_boot();
- 8000d1e:	f000 f82d 	bl	8000d7c <hold_boot>
+ 8000d1c:	f000 f82e 	bl	8000d7c <hold_boot>
 		*shutdown = 1;
- 8000d22:	683b      	ldr	r3, [r7, #0]
- 8000d24:	2201      	movs	r2, #1
- 8000d26:	701a      	strb	r2, [r3, #0]
+ 8000d20:	683b      	ldr	r3, [r7, #0]
+ 8000d22:	2201      	movs	r2, #1
+ 8000d24:	701a      	strb	r2, [r3, #0]
 		return CM4_SUCCESS;
- 8000d28:	2300      	movs	r3, #0
- 8000d2a:	e003      	b.n	8000d34 <cm4_is_shutdown+0x34>
+ 8000d26:	2300      	movs	r3, #0
+ 8000d28:	e003      	b.n	8000d32 <cm4_is_shutdown+0x34>
 	} else {
 		*shutdown = 0;
- 8000d2c:	683b      	ldr	r3, [r7, #0]
- 8000d2e:	2200      	movs	r2, #0
- 8000d30:	701a      	strb	r2, [r3, #0]
+ 8000d2a:	683b      	ldr	r3, [r7, #0]
+ 8000d2c:	2200      	movs	r2, #0
+ 8000d2e:	701a      	strb	r2, [r3, #0]
 		return CM4_SUCCESS;
- 8000d32:	2300      	movs	r3, #0
+ 8000d30:	2300      	movs	r3, #0
 	}
 }
- 8000d34:	4618      	mov	r0, r3
- 8000d36:	3708      	adds	r7, #8
- 8000d38:	46bd      	mov	sp, r7
- 8000d3a:	bd80      	pop	{r7, pc}
+ 8000d32:	4618      	mov	r0, r3
+ 8000d34:	3708      	adds	r7, #8
+ 8000d36:	46bd      	mov	sp, r7
+ 8000d38:	bd80      	pop	{r7, pc}
+	...
 
 08000d3c <is_booted>:
 
@@ -2230,7 +2231,7 @@ static void shutdown(CONTROL_INST_t * control) {
  800109e:	f107 020f 	add.w	r2, r7, #15
  80010a2:	4611      	mov	r1, r2
  80010a4:	4618      	mov	r0, r3
- 80010a6:	f7ff fe2b 	bl	8000d00 <cm4_is_shutdown>
+ 80010a6:	f7ff fe2a 	bl	8000cfe <cm4_is_shutdown>
 	if(shutdown) {
  80010aa:	7bfb      	ldrb	r3, [r7, #15]
  80010ac:	2b00      	cmp	r3, #0

@@ -6605,11 +6605,12 @@ LOAD c:/st/stm32cubeide_1.6.1/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
                 0x0000000008000c92       0x40 Application/Src/cm4.o
                 0x0000000008000c92                cm4_is_ready
  .text.cm4_shutdown
-                0x0000000008000cd2       0x2e Application/Src/cm4.o
+                0x0000000008000cd2       0x2c Application/Src/cm4.o
                 0x0000000008000cd2                cm4_shutdown
  .text.cm4_is_shutdown
-                0x0000000008000d00       0x3c Application/Src/cm4.o
-                0x0000000008000d00                cm4_is_shutdown
+                0x0000000008000cfe       0x3c Application/Src/cm4.o
+                0x0000000008000cfe                cm4_is_shutdown
+ *fill*         0x0000000008000d3a        0x2 
  .text.is_booted
                 0x0000000008000d3c       0x24 Application/Src/cm4.o
  .text.allow_boot
