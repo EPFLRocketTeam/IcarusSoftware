@@ -51,7 +51,7 @@
  *	CONSTANTS
  **********************/
 
-#define COMM_TIMEOUT 10
+#define COMM_TIMEOUT 20
 
 #define GARBAGE_THRESHOLD 10
 
@@ -141,13 +141,11 @@ CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t len
 			}
 			return CM4_REMOTE_ERROR;
 		}
-
-
-
 	} else {
 		cm4->garbage_counter++;
 		if(cm4->garbage_counter > GARBAGE_THRESHOLD) {
 			serial_garbage_clean(&cm4->ser);
+			cm4->garbage_counter = 0;
 		}
 		return CM4_TIMEOUT;
 	}
@@ -189,7 +187,7 @@ CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_P
 
 	error |= cm4_send(cm4, CM4_PAYLOAD, send_data, send_len , &recv_data, &recv_len);
 
-	if(recv_len == 24) {
+	if(recv_len == 50) {
 		cmd->timestamp = util_decode_u32(recv_data);
 		cmd->thrust = util_decode_i32(recv_data+4);
 
@@ -197,6 +195,17 @@ CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_P
 		cmd->dynamixel[1] = util_decode_i32(recv_data+12);
 		cmd->dynamixel[2] = util_decode_i32(recv_data+16);
 		cmd->dynamixel[3] = util_decode_i32(recv_data+20);
+
+		cmd->position[0] = util_decode_i32(recv_data+24);
+		cmd->position[1] = util_decode_i32(recv_data+28);
+		cmd->position[2] = util_decode_i32(recv_data+32);
+
+		cmd->speed[0] = util_decode_i32(recv_data+36);
+		cmd->speed[1] = util_decode_i32(recv_data+40);
+		cmd->speed[2] = util_decode_i32(recv_data+44);
+
+		cmd->state = util_decode_u16(recv_data+48);
+
 	}
 
 	return CM4_SUCCESS;
@@ -244,6 +253,11 @@ CM4_ERROR_t cm4_is_shutdown(CM4_INST_t * cm4, uint8_t * shutdown) {
 	}
 }
 
+
+CM4_ERROR_t cm4_force_shutdown(CM4_INST_t * cm4) {
+	hold_boot();
+	return CM4_SUCCESS;
+}
 
 
 

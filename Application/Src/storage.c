@@ -102,10 +102,10 @@ static StaticSemaphore_t storage_sem_buffer;
 
 static STORAGE_DATA_t read_data(uint32_t address);
 static void write_header_used(uint32_t used);
-static void write_header_calib(int32_t calib_1, int32_t calib_2);
+
 static void write_data(STORAGE_DATA_t data);
 
-static void storage_recover_calib(int32_t calib_1, int32_t calib_2);
+
 
 /**********************
  *	DECLARATIONS

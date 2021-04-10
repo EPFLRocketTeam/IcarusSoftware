@@ -34,14 +34,16 @@ worker = []
 total_data = 1
 
 #COMMANDS
-GET_STAT = 	0x00
-BOOT = 		0x01
-SHUTDOWN = 	0x02
-DOWNLOAD = 	0x03
-TVC_MOVE = 	0x04
-ABORT = 	0x05
-RECOVER =	0x06
+GET_STAT =  0x00
+BOOT =      0x01
+SHUTDOWN =  0x02
+DOWNLOAD =  0x03
+TVC_MOVE =  0x04
+ABORT =     0x05
+RECOVER =   0x06
 TRANSACTION = 0x07
+TRANSACTION_WRITE = 0x08
+TRANSACTION_READ =  0x09
 
 #MOVE MODES
 
@@ -61,6 +63,13 @@ remote_labels = ['data_id', 'temp_1', 'temp_2', 'temp_3', 'pres_1', 'pres_2', 'm
 def safe_int(d):
     try:
         return int(d)
+    except:
+        return 0
+
+
+def safe_int_k(d):
+    try:
+        return int(float(d)*1000)
     except:
         return 0
 
@@ -105,28 +114,29 @@ def tvc_motor_move_trig():
     serial_worker.send_generic(TVC_MOVE, bin_data)
 
 def transaction_trig():
-    acc_x = safe_int(window.trans_acc_x.text())
-    acc_y = safe_int(window.trans_acc_y.text())
-    acc_z = safe_int(window.trans_acc_z.text())
+    if(window.auto_trans.checkState()):
+        acc_x = safe_int_k(window.trans_acc_x.text())
+        acc_y = safe_int_k(window.trans_acc_y.text())
+        acc_z = safe_int_k(window.trans_acc_z.text())
 
-    gyro_x = safe_int(window.trans_gyro_x.text())
-    gyro_y = safe_int(window.trans_gyro_y.text())
-    gyro_z = safe_int(window.trans_gyro_z.text())
+        gyro_x = safe_int_k(window.trans_gyro_x.text())
+        gyro_y = safe_int_k(window.trans_gyro_y.text())
+        gyro_z = safe_int_k(window.trans_gyro_z.text())
 
-    baro = safe_int(window.trans_baro.text())
-    cc_pres = safe_int(window.trans_cc_pres.text())
-    bin_data = struct.pack("iii"+"iii"+"ii", 
-                            acc_x,
-                            acc_y,
-                            acc_z,
-                            gyro_x,
-                            gyro_y,
-                            gyro_z,
-                            baro,
-                            cc_pres)
+        baro = safe_int_k(window.trans_baro.text())
+        cc_pres = safe_int_k(window.trans_cc_pres.text())
+        bin_data = struct.pack("iii"+"iii"+"ii", 
+                                acc_x,
+                                acc_y,
+                                acc_z,
+                                gyro_x,
+                                gyro_y,
+                                gyro_z,
+                                baro,
+                                cc_pres)
 
 
-    serial_worker.send_generic(TRANSACTION, bin_data)
+        serial_worker.send_generic(TRANSACTION_WRITE, bin_data)
 
 def boot_trig():
     serial_worker.send_generic(BOOT, [0x00, 0x00])
@@ -157,7 +167,7 @@ def id_2_mem(id):
     return "{:.3f} {}".format(u_flt, u_str)
 
 
-def ping_cb(stat):
+def ping_cb(stat, trans):
     global status_state
     global counter
     global total_data
@@ -182,13 +192,8 @@ def ping_cb(stat):
         window.tvc_motor_current.insert(str(dyn2deg(data[4])))
         window.tvc_error.insert(hex(data[6]))
         window.tvc_temperature.insert(str(data[7]))
-
-
-
-
-def transaction_cb(cmd):
-    if(cmd and len(cmd) == 20):
-        data = struct.unpack("i"+"iiii", bytes(cmd))
+    if(trans and len(trans) == 46):
+        data = struct.unpack("i"+"iiii"+"iii"+"iii"+"H", bytes(trans))
         window.trans_thrust.clear()
         window.trans_dyn_0.clear()
         window.trans_dyn_1.clear()
@@ -199,6 +204,29 @@ def transaction_cb(cmd):
         window.trans_dyn_1.insert(str(data[2]))
         window.trans_dyn_2.insert(str(data[3]))
         window.trans_dyn_3.insert(str(data[4]))
+
+        window.est_pos_x.clear()
+        window.est_pos_y.clear()
+        window.est_pos_z.clear()
+
+        window.est_vel_x.clear()
+        window.est_vel_y.clear()
+        window.est_vel_z.clear()
+
+        window.gnc_state.clear()
+
+        window.est_pos_x.insert(str(data[5]/1000.0))
+        window.est_pos_y.insert(str(data[6]/1000.0))
+        window.est_pos_z.insert(str(data[7]/1000.0))
+
+        window.est_vel_x.insert(str(data[8]/1000.0))
+        window.est_vel_y.insert(str(data[9]/1000.0))
+        window.est_vel_z.insert(str(data[10]/1000.0))
+
+        fsm_states = ["Empty", "Idle", "Rail", "Launch", "Coast"]
+
+        window.gnc_state.insert(fsm_states[data[11]])
+    
 
 
 
@@ -270,10 +298,9 @@ def download_cb(data, cnt):
 
 
 class Serial_worker(QObject):
-    update_status_sig = Signal(list) #status
+    update_status_sig = Signal(list, list) #status
     connect_sig = Signal(str)
     download_sig = Signal(list, int)
-    transaction_sig = Signal(list)
 
     def __init__(self):
         QObject.__init__(self)
@@ -300,8 +327,8 @@ class Serial_worker(QObject):
             if resp == 0 or resp == -1:
                 return
             print("generic: ",'[{}]'.format(', '.join(hex(x) for x in resp)))
-            if opcode == TRANSACTION:
-                self.transaction_sig.emit(resp)
+
+
 
     @Slot()
     def download(self):
@@ -336,11 +363,12 @@ class Serial_worker(QObject):
     def send_ping(self):
         if self.msv2.is_connected() and not self.downloading:
             stat = self.msv2.send(GET_STAT, [0x00, 0x00])
-            if stat == -1 or stat==0:
+            trans = self.msv2.send(TRANSACTION_READ, [0x00, 0x00])
+            if stat == -1 or stat==0 or trans == -1 or trans == 0:
                 self.connect_sig.emit("RECONNECTING...")
             else:
                 self.connect_sig.emit("CONNECTED")
-            self.update_status_sig.emit(stat)
+            self.update_status_sig.emit(stat, trans)
 
     @Slot()
     def start_ping(self, period):
@@ -391,7 +419,7 @@ if __name__ == "__main__":
         COM_PORT = 'COM4'
 
     if platform.system() == 'Linux':
-    	COM_PORT ='/dev/ttyACM0'
+        COM_PORT ='/dev/ttyACM0'
 
     print(type(COM_PORT))
     if(type(COM_PORT)==str):
@@ -411,7 +439,6 @@ if __name__ == "__main__":
     serial_worker.connect_sig.connect(connect_cb)
     serial_worker.update_status_sig.connect(ping_cb)
     serial_worker.download_sig.connect(download_cb)
-    serial_worker.transaction_sig.connect(transaction_cb)
 
     #start worker thread
     worker_thread.start()

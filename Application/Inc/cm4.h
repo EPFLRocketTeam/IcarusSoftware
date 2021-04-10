@@ -80,6 +80,9 @@ typedef struct CM4_PAYLOAD_COMMAND {
 	uint32_t timestamp;
 	int32_t thrust;
 	int32_t dynamixel[4];
+	int32_t position[3];
+	int32_t speed[3];
+	uint16_t state;
 }CM4_PAYLOAD_COMMAND_t;
 
 
@@ -114,6 +117,8 @@ CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready);
 CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4);
 
 CM4_ERROR_t cm4_is_shutdown(CM4_INST_t * cm4, uint8_t * shutdown);
+
+CM4_ERROR_t cm4_force_shutdown(CM4_INST_t * cm4);
 
 
 

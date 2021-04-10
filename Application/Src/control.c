@@ -218,6 +218,7 @@ static void init_idle(CONTROL_INST_t * control) {
 	control->state = CS_IDLE;
 	led_set_color(LED_GREEN);
 	storage_disable();
+	cm4_force_shutdown(control->cm4);
 }
 
 static void idle(CONTROL_INST_t * control) {
@@ -291,6 +292,7 @@ static void init_abort(CONTROL_INST_t * control) {
 #endif
 	control->counter_active=0;
 	storage_disable();
+	cm4_force_shutdown(control->cm4);
 }
 
 static void _abort(CONTROL_INST_t * control) {
