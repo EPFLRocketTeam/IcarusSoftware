@@ -192,10 +192,23 @@ static void control_update(CONTROL_INST_t * control) {
 	while(can_msgPending()) {
 		control->msg = can_readBuffer();
 
-		if(control->msg.id == DATA_ID_COMMAND){
-
+		if(control->msg.id == DATA_ID_PRESSURE){
+			control->sensor_payload.baro = control->msg.data;
+		} else if(control->msg.id == DATA_ID_ACCELERATION_X) {
+			control->sensor_payload.acc_x = control->msg.data;
+		} else if(control->msg.id == DATA_ID_ACCELERATION_Y) {
+			control->sensor_payload.acc_y = control->msg.data;
+		} else if(control->msg.id == DATA_ID_ACCELERATION_Z) {
+			control->sensor_payload.acc_z = control->msg.data;
+		} else if(control->msg.id == DATA_ID_GYRO_X) {
+			control->sensor_payload.gyro_x = control->msg.data;
+		} else if(control->msg.id == DATA_ID_GYRO_Y) {
+			control->sensor_payload.gyro_y = control->msg.data;
+		} else if(control->msg.id == DATA_ID_GYRO_Z) {
+			control->sensor_payload.gyro_z = control->msg.data;
 		}
 	}
+
 #if USE_DYNAMIXEL == 1
 	//read servo parameters
 	servo_sync(control->tvc_servo);
