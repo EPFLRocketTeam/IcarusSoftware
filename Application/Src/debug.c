@@ -74,8 +74,9 @@ static void debug_tvc_move(uint8_t * data, uint16_t data_len, uint8_t * resp, ui
 static void debug_abort(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_transaction(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
-static void debug_transaction_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
-static void debug_transaction_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_command_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_sensor_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 
 
 /**********************
@@ -90,8 +91,9 @@ static void (*debug_fcn[]) (uint8_t *, uint16_t, uint8_t *, uint16_t *) = {
 		debug_abort,				//0x05
 		debug_recover,				//0x06
 		debug_transaction,			//0x07
-		debug_transaction_write,	//0x08
-		debug_transaction_read		//0x09
+		debug_sensor_write,			//0x08
+		debug_command_read,			//0x09
+		debug_sensor_read			//0x0A
 };
 
 static uint16_t debug_fcn_max = sizeof(debug_fcn) / sizeof(void *);
@@ -246,7 +248,7 @@ static void debug_transaction(uint8_t * data, uint16_t data_len, uint8_t * resp,
 	}
 }
 
-static void debug_transaction_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
 	if(data_len == TRANSACTION_SENS_LEN) {
 		CM4_PAYLOAD_SENSOR_t sens_data = {0};
 		sens_data.acc_x = util_decode_i32(data);
@@ -271,7 +273,7 @@ static void debug_transaction_write(uint8_t * data, uint16_t data_len, uint8_t *
 	}
 }
 
-static void debug_transaction_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+static void debug_command_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
 
 	CM4_PAYLOAD_COMMAND_t cmd_data = control_get_cmd();
 
@@ -292,6 +294,25 @@ static void debug_transaction_read(uint8_t * data, uint16_t data_len, uint8_t * 
 	util_encode_i32(resp+44, cmd_data.state);
 
 	*resp_len = TRANSACTION_CMD_LEN;
+
+}
+
+static void debug_sensor_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+
+	CM4_PAYLOAD_SENSOR_t sens_data = control_get_sens();
+
+	util_encode_i32(resp, sens_data.acc_x);
+	util_encode_i32(resp+4, sens_data.acc_y);
+	util_encode_i32(resp+8, sens_data.acc_z);
+
+	util_encode_i32(resp+12, sens_data.gyro_x);
+	util_encode_i32(resp+16, sens_data.gyro_y);
+	util_encode_i32(resp+20, sens_data.gyro_z);
+
+	util_encode_i32(resp+24, sens_data.baro);
+	util_encode_i32(resp+28, sens_data.cc_pressure);
+
+	*resp_len = TRANSACTION_SENS_LEN;
 
 }
 

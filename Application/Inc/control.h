@@ -115,6 +115,8 @@ CONTROL_STATUS_t control_get_status();
 
 void control_set_sens(CM4_PAYLOAD_SENSOR_t sens);
 
+CM4_PAYLOAD_SENSOR_t control_get_sens(void);
+
 CM4_PAYLOAD_COMMAND_t control_get_cmd(void);
 
 void control_move_tvc(int32_t target);

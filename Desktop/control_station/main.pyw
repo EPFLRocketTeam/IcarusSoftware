@@ -44,6 +44,7 @@ RECOVER =   0x06
 TRANSACTION = 0x07
 TRANSACTION_WRITE = 0x08
 TRANSACTION_READ =  0x09
+SENSOR_READ =  0x0A
 
 #MOVE MODES
 
@@ -113,8 +114,14 @@ def tvc_motor_move_trig():
     bin_data = struct.pack("i", target)
     serial_worker.send_generic(TVC_MOVE, bin_data)
 
-def transaction_trig():
+
+def transaction_auto_trig():
     if(window.auto_trans.checkState()):
+        transaction_trig()
+
+
+def transaction_trig():
+    if(window.emission.checkState()):
         acc_x = safe_int_k(window.trans_acc_x.text())
         acc_y = safe_int_k(window.trans_acc_y.text())
         acc_z = safe_int_k(window.trans_acc_z.text())
@@ -167,7 +174,7 @@ def id_2_mem(id):
     return "{:.3f} {}".format(u_flt, u_str)
 
 
-def ping_cb(stat, trans):
+def ping_cb(stat, trans, sens):
     global status_state
     global counter
     global total_data
@@ -226,6 +233,31 @@ def ping_cb(stat, trans):
         fsm_states = ["Empty", "Idle", "Rail", "Launch", "Coast"]
 
         window.gnc_state.insert(fsm_states[data[11]])
+
+    if(sens and len(sens) == 32 and not window.emission.checkState()):
+        data = struct.unpack("iii"+"iii"+"ii", bytes(sens))
+        window.trans_acc_x.clear()
+        window.trans_acc_y.clear()
+        window.trans_acc_z.clear()
+
+        window.trans_gyro_x.clear()
+        window.trans_gyro_y.clear()
+        window.trans_gyro_z.clear()
+
+        window.trans_baro.clear()
+        window.trans_cc_pres.clear()
+
+        window.trans_acc_x.insert(str(data[0]/1000.0))
+        window.trans_acc_y.insert(str(data[1]/1000.0))
+        window.trans_acc_z.insert(str(data[2]/1000.0))
+
+        window.trans_gyro_x.insert(str(data[3]/1000.0))
+        window.trans_gyro_y.insert(str(data[4]/1000.0))
+        window.trans_gyro_z.insert(str(data[5]/1000.0))
+        
+        window.trans_baro.insert(str(data[6]/1000.0))
+        window.trans_cc_pres.insert(str(data[7]/1000.0))
+
     
 
 
@@ -298,7 +330,7 @@ def download_cb(data, cnt):
 
 
 class Serial_worker(QObject):
-    update_status_sig = Signal(list, list) #status
+    update_status_sig = Signal(list, list, list) #status
     connect_sig = Signal(str)
     download_sig = Signal(list, int)
 
@@ -364,11 +396,12 @@ class Serial_worker(QObject):
         if self.msv2.is_connected() and not self.downloading:
             stat = self.msv2.send(GET_STAT, [0x00, 0x00])
             trans = self.msv2.send(TRANSACTION_READ, [0x00, 0x00])
+            sens = self.msv2.send(SENSOR_READ, [0x00, 0x00])
             if stat == -1 or stat==0 or trans == -1 or trans == 0:
                 self.connect_sig.emit("RECONNECTING...")
             else:
                 self.connect_sig.emit("CONNECTED")
-            self.update_status_sig.emit(stat, trans)
+            self.update_status_sig.emit(stat, trans, sens)
 
     @Slot()
     def start_ping(self, period):
@@ -463,7 +496,7 @@ if __name__ == "__main__":
     window.trans_btn.clicked.connect(transaction_trig)
 
     transaction_timer = QTimer()
-    transaction_timer.timeout.connect(transaction_trig)
+    transaction_timer.timeout.connect(transaction_auto_trig)
     transaction_timer.start(0.5)
 
 
