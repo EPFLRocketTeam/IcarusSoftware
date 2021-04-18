@@ -193,19 +193,21 @@ static void control_update(CONTROL_INST_t * control) {
 		control->msg = can_readBuffer();
 
 		if(control->msg.id == DATA_ID_PRESSURE){
-			control->sensor_payload.baro = control->msg.data;
+			control->sensor_payload.baro = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_ACCELERATION_X) {
-			control->sensor_payload.acc_x = control->msg.data;
+			control->sensor_payload.acc_x = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_ACCELERATION_Y) {
-			control->sensor_payload.acc_y = control->msg.data;
+			control->sensor_payload.acc_y = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_ACCELERATION_Z) {
-			control->sensor_payload.acc_z = control->msg.data;
+			control->sensor_payload.acc_z = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_GYRO_X) {
-			control->sensor_payload.gyro_x = control->msg.data;
+			control->sensor_payload.gyro_x = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_GYRO_Y) {
-			control->sensor_payload.gyro_y = control->msg.data;
+			control->sensor_payload.gyro_y = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_GYRO_Z) {
-			control->sensor_payload.gyro_z = control->msg.data;
+			control->sensor_payload.gyro_z = (int32_t) control->msg.data;
+		} else if(control->msg.id == DATA_ID_PRESS_2) {
+			control->sensor_payload.cc_pressure = (int32_t) control->msg.data;
 		}
 	}
 
