@@ -24,6 +24,15 @@
 
 #define MSV2_MAX_DATA_LEN	(512)
 
+#define MSV2_ERROR_LO	(0xce)
+#define MSV2_ERROR_HI	(0xec)
+
+#define MSV2_CRC_ERROR_LO	(0xbe)
+#define MSV2_CRC_ERROR_HI	(0xeb)
+
+#define MSV2_OK_LO	(0xc5)
+#define MSV2_OK_HI	(0x5c)
+
 
 /**********************
  *  MACROS

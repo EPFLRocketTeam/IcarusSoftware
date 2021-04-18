@@ -22,7 +22,8 @@ control.c:357:6:control_recover	8	static
 control.c:361:18:control_get_status	48	static
 control.c:372:6:control_set_sens	12	static
 control.c:376:22:control_get_sens	24	static
-control.c:380:23:control_get_cmd	24	static
-control.c:385:16:control_sched_should_run	16	static
-control.c:389:13:control_sched_done	16	static
-control.c:397:13:control_sched_set	24	static
+control.c:380:6:control_set_cmd	12	static
+control.c:384:23:control_get_cmd	24	static
+control.c:389:16:control_sched_should_run	16	static
+control.c:393:13:control_sched_done	16	static
+control.c:401:13:control_sched_set	24	static

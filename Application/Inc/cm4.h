@@ -24,9 +24,18 @@
  *  CONSTANTS
  **********************/
 
-#define CM4_PING		0x00
-#define CM4_SHUTDOWN	0x01
-#define CM4_PAYLOAD		0x02
+#define CM4_MASTER_PING			0x00
+#define CM4_MASTER_SHUTDOWN		0x01
+#define CM4_MASTER_PAYLOAD		0x02
+#define CM4_MASTER SENSORS		0x03
+
+
+//Initiated by CM4
+#define CM4_SALVE_PREFIX		0x80
+
+#define CM4_SLAVE_PING			(0x00 | CM4_SLAVE_PREFIX)
+#define CM4_SLAVE_COMMAND		(0x01 | CM4_SLAVE_PREFIX)
+
 
 
 /**********************

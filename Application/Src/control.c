@@ -377,6 +377,10 @@ CM4_PAYLOAD_SENSOR_t control_get_sens(void) {
 	return control.sensor_payload;
 }
 
+void control_set_cmd(CM4_PAYLOAD_COMMAND_t cmd) {
+	control.command_payload = cmd;
+}
+
 CM4_PAYLOAD_COMMAND_t control_get_cmd(void) {
 	return control.command_payload;
 }
