@@ -55,6 +55,7 @@
 #define DATA_ID_KALMAN_YAW   46 // mrad
 #define DATA_ID_KALMAN_PITCH 47 // mrad
 #define DATA_ID_KALMAN_ROLL  48 // mrad
+#define DATA_ID_ALTITUDE	 49 // m
 
 #define DATA_ID_STATE 50 // enum
 

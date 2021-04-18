@@ -41,6 +41,8 @@
 
 #define USE_DYNAMIXEL 0
 
+#define USE_PIPELINE  0
+
 /**********************
  *	MACROS
  **********************/
@@ -189,10 +191,11 @@ static void control_update(CONTROL_INST_t * control) {
 		control->counter -= (control->time - control->last_time);
 	}
 
+#if USE_PIPELINE == 0
 	while(can_msgPending()) {
 		control->msg = can_readBuffer();
 
-		if(control->msg.id == DATA_ID_PRESSURE){
+		if(control->msg.id == DATA_ID_ALTITUDE){
 			control->sensor_payload.baro = (int32_t) control->msg.data;
 		} else if(control->msg.id == DATA_ID_ACCELERATION_X) {
 			control->sensor_payload.acc_x = (int32_t) control->msg.data;
@@ -210,6 +213,7 @@ static void control_update(CONTROL_INST_t * control) {
 			control->sensor_payload.cc_pressure = (int32_t) control->msg.data;
 		}
 	}
+#endif
 
 #if USE_DYNAMIXEL == 1
 	//read servo parameters
@@ -275,7 +279,9 @@ static void init_compute(CONTROL_INST_t * control) {
 
 static void compute(CONTROL_INST_t * control) {
 
+#if USE_PIPELINE == 0
 	cm4_transaction(control->cm4, &control->sensor_payload, &control->command_payload);
+#endif
 
 	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {
 		init_shutdown(control);

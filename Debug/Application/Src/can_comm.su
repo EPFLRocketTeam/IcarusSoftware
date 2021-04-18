@@ -7,4 +7,4 @@ can_comm.c:145:10:can_msgPending	16	static
 can_comm.c:154:9:can_readBuffer	40	static
 can_comm.c:177:10:can_readFrame	16	static
 can_comm.c:201:6:can_init	8	static
-can_comm.c:206:6:can_send_thread	16	static
+can_comm.c:206:6:can_send_thread	72	static

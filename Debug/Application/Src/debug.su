@@ -14,7 +14,7 @@ debug.c:169:13:debug_download	32	static
 debug.c:180:13:debug_tvc_move	32	static
 debug.c:194:13:debug_abort	24	static
 debug.c:201:13:debug_recover	24	static
-debug.c:208:13:debug_transaction	176	static
+debug.c:208:13:debug_transaction	184	static
 debug.c:251:13:debug_sensor_write	128	static
 debug.c:276:13:debug_command_read	80	static
 debug.c:300:13:debug_sensor_read	80	static

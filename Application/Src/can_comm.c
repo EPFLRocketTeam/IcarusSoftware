@@ -219,6 +219,10 @@ void can_send_thread(void * arg) {
 		can_setFrame((uint32_t) cmd.dynamixel[1], DATA_ID_VANE_CMD_2, cmd.timestamp);
 		can_setFrame((uint32_t) cmd.dynamixel[2], DATA_ID_VANE_CMD_3, cmd.timestamp);
 		can_setFrame((uint32_t) cmd.dynamixel[3], DATA_ID_VANE_CMD_4, cmd.timestamp);
+		can_setFrame((uint32_t) cmd.position[2], DATA_ID_KALMAN_Z, cmd.timestamp);
+		can_setFrame((uint32_t) cmd.speed[2], DATA_ID_KALMAN_VZ, cmd.timestamp);
+
+
 
 		vTaskDelayUntil( &last_wake_time, period );
 	}

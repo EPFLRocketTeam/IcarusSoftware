@@ -81,6 +81,7 @@ typedef struct CM4_PAYLOAD_SENSOR {
 	int32_t gyro_y;
 	int32_t gyro_z;
 	int32_t baro;
+	int32_t alti;
 	int32_t cc_pressure;
 	int32_t dynamixel[4];
 }CM4_PAYLOAD_SENSOR_t;
