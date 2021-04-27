@@ -18,6 +18,7 @@
 #include <storage.h>
 #include <serial.h>
 #include <debug.h>
+#include <pipeline.h>
 
 #include <can_comm.h>
 
@@ -71,6 +72,7 @@
 static TaskHandle_t control_handle = NULL;
 static TaskHandle_t serial_handle = NULL;
 static TaskHandle_t storage_handle = NULL;
+static TaskHandle_t pipeline_handle = NULL;
 
 
 /**********************
@@ -121,6 +123,11 @@ void threads_init(void) {
 	 */
 	CREATE_THREAD(control_handle, control, control_thread, CONTROL_SZ, CONTROL_PRIO);
 
+	/*
+	 *  pipeline thread
+	 *  Highest priority
+	 */
+	CREATE_THREAD(pipeline_handle, pipeline, pipeline_thread, CAN_SZ, CAN_PRIO);
 
 
 }

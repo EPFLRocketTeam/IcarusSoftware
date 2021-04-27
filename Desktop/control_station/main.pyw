@@ -41,10 +41,10 @@ DOWNLOAD =  0x03
 TVC_MOVE =  0x04
 ABORT =     0x05
 RECOVER =   0x06
-TRANSACTION = 0x07
-TRANSACTION_WRITE = 0x08
-TRANSACTION_READ =  0x09
-SENSOR_READ =  0x0A
+SENSOR_WRITE = 0x07
+COMMAND_READ = 0x08
+SENSOR_READ =  0x09
+
 
 #MOVE MODES
 
@@ -131,19 +131,17 @@ def transaction_trig():
         gyro_z = safe_int_k(window.trans_gyro_z.text())
 
         baro = safe_int_k(window.trans_baro.text())
-        cc_pres = safe_int_k(window.trans_cc_pres.text())
-        bin_data = struct.pack("iii"+"iii"+"ii", 
+        bin_data = struct.pack("iii"+"iii"+"i", 
                                 acc_x,
                                 acc_y,
                                 acc_z,
                                 gyro_x,
                                 gyro_y,
                                 gyro_z,
-                                baro,
-                                cc_pres)
+                                baro)
 
 
-        serial_worker.send_generic(TRANSACTION_WRITE, bin_data)
+        serial_worker.send_generic(SENSOR_WRITE, bin_data)
 
 def boot_trig():
     serial_worker.send_generic(BOOT, [0x00, 0x00])
@@ -234,8 +232,8 @@ def ping_cb(stat, trans, sens):
 
         window.gnc_state.insert(fsm_states[data[11]])
 
-    if(sens and len(sens) == 32 and not window.emission.checkState()):
-        data = struct.unpack("iii"+"iii"+"ii", bytes(sens))
+    if(sens and len(sens) == 28 and not window.emission.checkState()):
+        data = struct.unpack("iii"+"iii"+"i", bytes(sens))
         window.trans_acc_x.clear()
         window.trans_acc_y.clear()
         window.trans_acc_z.clear()
@@ -245,7 +243,7 @@ def ping_cb(stat, trans, sens):
         window.trans_gyro_z.clear()
 
         window.trans_baro.clear()
-        window.trans_cc_pres.clear()
+        #window.trans_cc_pres.clear()
 
         window.trans_acc_x.insert(str(data[0]/1000.0))
         window.trans_acc_y.insert(str(data[1]/1000.0))
@@ -256,7 +254,7 @@ def ping_cb(stat, trans, sens):
         window.trans_gyro_z.insert(str(data[5]/1000.0))
         
         window.trans_baro.insert(str(data[6]/1000.0))
-        window.trans_cc_pres.insert(str(data[7]/1000.0))
+        #window.trans_cc_pres.insert(str(data[7]/1000.0))
 
     
 
@@ -395,7 +393,7 @@ class Serial_worker(QObject):
     def send_ping(self):
         if self.msv2.is_connected() and not self.downloading:
             stat = self.msv2.send(GET_STAT, [0x00, 0x00])
-            trans = self.msv2.send(TRANSACTION_READ, [0x00, 0x00])
+            trans = self.msv2.send(COMMAND_READ, [0x00, 0x00])
             sens = self.msv2.send(SENSOR_READ, [0x00, 0x00])
             if stat == -1 or stat==0 or trans == -1 or trans == 0:
                 self.connect_sig.emit("RECONNECTING...")

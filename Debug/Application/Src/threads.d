@@ -52,7 +52,7 @@ Application/Src/threads.o: ../Application/Src/threads.c \
  ../Application/Inc/util.h ../Application/Inc/servo_def.h \
  ../Application/Inc/can_comm.h ../Application/Inc/cm4.h \
  ../Application/Inc/msv2.h ../Application/Inc/storage.h \
- ../Application/Inc/debug.h
+ ../Application/Inc/debug.h ../Application/Inc/pipeline.h
 
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
 
@@ -175,3 +175,5 @@ Application/Src/threads.o: ../Application/Src/threads.c \
 ../Application/Inc/storage.h:
 
 ../Application/Inc/debug.h:
+
+../Application/Inc/pipeline.h:

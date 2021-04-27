@@ -32,7 +32,7 @@
 
 #define DOWNLOAD_LEN  (4)
 #define TVC_MOVE_LEN  (4)
-#define TRANSACTION_SENS_LEN  (32)
+#define TRANSACTION_SENS_LEN  (28)
 #define TRANSACTION_CMD_LEN  (46)
 
 
@@ -217,6 +217,7 @@ static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp
 		sens_data.baro = util_decode_i32(data+24);
 
 		control_set_sens(sens_data);
+		cm4_send_sensors(control_get_cm4(), &sens_data);
 
 
 		*resp_len = 2;
@@ -245,7 +246,7 @@ static void debug_command_read(uint8_t * data, uint16_t data_len, uint8_t * resp
 	util_encode_i32(resp+36, cmd_data.speed[1]);
 	util_encode_i32(resp+40, cmd_data.speed[2]);
 
-	util_encode_i32(resp+44, cmd_data.state);
+	util_encode_u16(resp+44, cmd_data.state);
 
 	*resp_len = TRANSACTION_CMD_LEN;
 

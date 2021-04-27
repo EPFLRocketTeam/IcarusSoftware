@@ -48,6 +48,8 @@
 extern "C"{
 #endif
 
+void pipeline_init(CM4_INST_t * cm4);
+
 void pipeline_thread(void * arg);
 
 void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd);

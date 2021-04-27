@@ -128,6 +128,9 @@ void control_abort(void);
 void control_recover(void);
 
 
+CM4_INST_t * control_get_cm4(void);
+
+
 
 #ifdef __cplusplus
 } // extern "C"

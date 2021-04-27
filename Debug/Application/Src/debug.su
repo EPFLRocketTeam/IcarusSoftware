@@ -15,5 +15,5 @@ debug.c:178:13:debug_tvc_move	32	static
 debug.c:192:13:debug_abort	24	static
 debug.c:199:13:debug_recover	24	static
 debug.c:206:13:debug_sensor_write	96	static
-debug.c:230:13:debug_command_read	80	static
-debug.c:254:13:debug_sensor_read	64	static
+debug.c:231:13:debug_command_read	80	static
+debug.c:255:13:debug_sensor_read	64	static

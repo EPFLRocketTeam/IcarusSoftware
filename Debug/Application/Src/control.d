@@ -51,7 +51,8 @@ Application/Src/control.o: ../Application/Src/control.c \
  ../Core/Inc/usart.h ../Core/Inc/main.h ../Application/Inc/util.h \
  ../Application/Inc/servo_def.h ../Application/Inc/can_comm.h \
  ../Application/Inc/cm4.h ../Application/Inc/msv2.h \
- ../Application/Inc/led.h ../Application/Inc/storage.h
+ ../Application/Inc/led.h ../Application/Inc/storage.h \
+ ../Application/Inc/pipeline.h
 
 ../Core/Inc/main.h:
 
@@ -174,3 +175,5 @@ Application/Src/control.o: ../Application/Src/control.c \
 ../Application/Inc/led.h:
 
 ../Application/Inc/storage.h:
+
+../Application/Inc/pipeline.h:

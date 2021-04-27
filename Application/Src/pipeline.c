@@ -110,7 +110,7 @@ typedef struct PIPELINE_INST {
  *	VARIABLES
  **********************/
 
-static PIPELINE_INST_t pipeline;
+static PIPELINE_INST_t pipeline = {0};
 
 
 
@@ -123,6 +123,11 @@ static PIPELINE_INST_t pipeline;
  *	DECLARATIONS
  **********************/
 
+
+void pipeline_init(CM4_INST_t * cm4) {
+	pipeline.cm4 = cm4;
+}
+
 void pipeline_thread(void * arg) {
 
 	static TickType_t last_wake_time;
@@ -130,7 +135,9 @@ void pipeline_thread(void * arg) {
 
 	last_wake_time = xTaskGetTickCount();
 
-
+	while(pipeline.cm4 == NULL) {
+		osDelay(1);
+	}
 
 	for(;;) {
 

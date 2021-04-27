@@ -17,6 +17,7 @@
 #include <can_comm.h>
 #include <servo.h>
 #include <cm4.h>
+#include <pipeline.h>
 
 /**********************
  *	CONFIGURATION
@@ -142,6 +143,8 @@ void control_thread(void * arg) {
 	static CM4_INST_t cm4;
 
 	cm4_init(&cm4);
+
+	pipeline_init(&cm4);
 
 	control.cm4 = &cm4;
 
@@ -345,6 +348,10 @@ CONTROL_STATUS_t control_get_status() {
 	status.tvc_position = control.tvc_servo->position;
 
 	return status;
+}
+
+CM4_INST_t * control_get_cm4(void) {
+	return control.cm4;
 }
 
 void control_set_sens(CM4_PAYLOAD_SENSOR_t sens) {
