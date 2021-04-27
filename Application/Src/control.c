@@ -255,10 +255,6 @@ static void init_compute(CONTROL_INST_t * control) {
 
 static void compute(CONTROL_INST_t * control) {
 
-#if USE_PIPELINE == 0
-	cm4_transaction(control->cm4, &control->sensor_payload, &control->command_payload);
-#endif
-
 	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {
 		init_shutdown(control);
 		control_sched_done(control, CONTROL_SCHED_SHUTDOWN);

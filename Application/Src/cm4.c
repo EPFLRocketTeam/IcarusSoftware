@@ -34,6 +34,7 @@
 #include <serial.h>
 #include <main.h>
 #include <control.h>
+#include <pipeline.h>
 
 
 /**********************
@@ -148,7 +149,7 @@ void cm4_generate_response(CM4_INST_t * cm4) {
 	static uint16_t length = 0;
 	static uint16_t bin_length = 0;
 	uint8_t opcode = cm4->msv2.rx.opcode;
-	opcode &= ~CM4_SALVE_PREFIX;
+	opcode &= ~CM4_C2H_PREFIX;
 	if(opcode < response_fcn_max) {
 		response_fcn[opcode](cm4->msv2.rx.data, cm4->msv2.rx.length, send_data, &length);
 		//length is in words
@@ -191,6 +192,8 @@ static void cm4_response_command(uint8_t * data, uint16_t data_len, uint8_t * re
 		cmd.state = util_decode_u16(data+48);
 
 		control_set_cmd(cmd);
+
+		pipeline_send_control(&cmd);
 
 		resp[0] = MSV2_OK_LO;
 		resp[1] = MSV2_OK_HI;
@@ -247,18 +250,18 @@ CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t len
 CM4_ERROR_t cm4_ping(CM4_INST_t * cm4) {
 	CM4_ERROR_t error = 0;
 	uint8_t data[] = {0xc5, 0x5c};
-	error |= cm4_send(cm4, CM4_MASTER_PING, data, 2, NULL, NULL);
+	error |= cm4_send(cm4, CM4_H2C_PING, data, 2, NULL, NULL);
 
 	return error;
 }
 
 
-CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_PAYLOAD_COMMAND_t * cmd) {
+CM4_ERROR_t cm4_send_sensors(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens) {
 	CM4_ERROR_t error = 0;
 	uint8_t * recv_data;
 	uint16_t recv_len = 0;
-	uint16_t send_len = 52;
-	uint8_t send_data[52];
+	uint16_t send_len = 32;
+	uint8_t send_data[32];
 
 	util_encode_u32(send_data, sens->timestamp);
 	util_encode_i32(send_data+4, sens->acc_x);
@@ -270,37 +273,34 @@ CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_P
 	util_encode_i32(send_data+24, sens->gyro_z);
 
 	util_encode_i32(send_data+28, sens->baro);
-	util_encode_i32(send_data+32, sens->cc_pressure);
 
-	util_encode_i32(send_data+36, sens->dynamixel[0]);
-	util_encode_i32(send_data+40, sens->dynamixel[1]);
-	util_encode_i32(send_data+44, sens->dynamixel[2]);
-	util_encode_i32(send_data+48, sens->dynamixel[3]);
+	error |= cm4_send(cm4, CM4_H2C_SENSORS, send_data, send_len , &recv_data, &recv_len);
 
-	error |= cm4_send(cm4, CM4_MASTER_PAYLOAD, send_data, send_len , &recv_data, &recv_len);
+	//EVENTUAL ACKNOWLEGE
 
-	if(recv_len == 50) {
-		cmd->timestamp = util_decode_u32(recv_data);
-		cmd->thrust = util_decode_i32(recv_data+4);
+	return error;
+}
 
-		cmd->dynamixel[0] = util_decode_i32(recv_data+8);
-		cmd->dynamixel[1] = util_decode_i32(recv_data+12);
-		cmd->dynamixel[2] = util_decode_i32(recv_data+16);
-		cmd->dynamixel[3] = util_decode_i32(recv_data+20);
+CM4_ERROR_t cm4_send_feedback(CM4_INST_t * cm4, CM4_PAYLOAD_FEEDBACK_t * feed) {
+	CM4_ERROR_t error = 0;
+	uint8_t * recv_data;
+	uint16_t recv_len = 0;
+	uint16_t send_len = 24;
+	uint8_t send_data[24];
 
-		cmd->position[0] = util_decode_i32(recv_data+24);
-		cmd->position[1] = util_decode_i32(recv_data+28);
-		cmd->position[2] = util_decode_i32(recv_data+32);
+	util_encode_u32(send_data, feed->timestamp);
+	util_encode_i32(send_data+4, feed->cc_pressure);
 
-		cmd->speed[0] = util_decode_i32(recv_data+36);
-		cmd->speed[1] = util_decode_i32(recv_data+40);
-		cmd->speed[2] = util_decode_i32(recv_data+44);
+	util_encode_i32(send_data+8, feed->dynamixel[0]);
+	util_encode_i32(send_data+12, feed->dynamixel[1]);
+	util_encode_i32(send_data+16, feed->dynamixel[2]);
+	util_encode_i32(send_data+20, feed->dynamixel[3]);
 
-		cmd->state = util_decode_u16(recv_data+48);
+	error |= cm4_send(cm4, CM4_H2C_FEEDBACK, send_data, send_len , &recv_data, &recv_len);
 
-	}
+	//EVENTUAL ACKNOWLEGE
 
-	return CM4_SUCCESS;
+	return error;
 }
 
 CM4_ERROR_t cm4_boot(CM4_INST_t * cm4) {
@@ -324,7 +324,7 @@ CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready) {
 CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
 	//send shutdown command through uart
 	uint8_t data[] = {0x00, 0x00};
-	cm4_send(cm4, CM4_MASTER_SHUTDOWN, data, 2, NULL, NULL);
+	cm4_send(cm4, CM4_H2C_SHUTDOWN, data, 2, NULL, NULL);
 
 	return CM4_SUCCESS;
 }

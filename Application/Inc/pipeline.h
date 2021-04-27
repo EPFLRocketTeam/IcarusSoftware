@@ -17,6 +17,8 @@
 
 #include <stdint.h>
 
+#include <cm4.h>
+
 /**********************
  *  CONSTANTS
  **********************/
@@ -47,6 +49,8 @@ extern "C"{
 #endif
 
 void pipeline_thread(void * arg);
+
+void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd);
 
 #ifdef __cplusplus
 } // extern "C"

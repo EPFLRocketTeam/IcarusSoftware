@@ -17,6 +17,8 @@
 
 #include <pipeline.h>
 
+#include <cm4.h>
+
 
 /**********************
  *	CONSTANTS
@@ -95,12 +97,12 @@ typedef struct PIPELINE_FEEDBACK_DATA {
 typedef struct PIPELINE_INST {
 	CAN_msg msg;
 	PIPELINE_CONTROL_FLAGS_t control_flags;
-	PIPELINE_CONTROL_DATA_t control_data;
+	CM4_PAYLOAD_COMMAND_t control_data;
 	PIPELINE_SENSORS_FLAGS_t sensors_flags;
-	PIPELINE_SENSORS_DATA_t sensors_data;
+	CM4_PAYLOAD_SENSOR_t sensors_data;
 	PIPELINE_FEEDBACK_FLAGS_t feedback_flags;
-	PIPELINE_FEEDBACK_DATA_t feedback_data;
-
+	CM4_PAYLOAD_FEEDBACK_t feedback_data;
+	CM4_INST_t * cm4;
 }PIPELINE_INST_t;
 
 
@@ -166,20 +168,34 @@ void pipeline_thread(void * arg) {
 				pipeline.sensors_flags |= PIPELINE_SENSORS_GYRO_Z;
 
 			} else if(pipeline.msg.id == DATA_ID_PRESS_2) {
-				pipeline.feedback_data.thrust = (int32_t) pipeline.msg.data;
+				pipeline.feedback_data.cc_pressure = (int32_t) pipeline.msg.data;
 				pipeline.feedback_flags |= PIPELINE_FEEDBACK_THRUST;
 			}
 
 			if(pipeline.sensors_flags == PIPELINE_SENSORS_ALL) {
-				//SEND TO CM4
+				pipeline.sensors_flags = 0;
+				cm4_send_sensors(pipeline.cm4, &pipeline.sensors_data);
 			}
 
+			if(pipeline.feedback_flags == PIPELINE_FEEDBACK_ALL) {
+				pipeline.feedback_flags = 0;
+				cm4_send_feedback(pipeline.cm4, &pipeline.feedback_data);
+			}
 		}
-
-
-
 		vTaskDelayUntil( &last_wake_time, period );
 	}
+}
+
+
+
+void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd) {
+	can_setFrame((uint32_t) cmd->thrust, DATA_ID_THRUST_CMD, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->dynamixel[0], DATA_ID_VANE_CMD_1, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->dynamixel[1], DATA_ID_VANE_CMD_2, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->dynamixel[2], DATA_ID_VANE_CMD_3, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->dynamixel[3], DATA_ID_VANE_CMD_4, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->position[2], DATA_ID_KALMAN_Z, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->speed[2], DATA_ID_KALMAN_VZ, cmd->timestamp);
 }
 
 

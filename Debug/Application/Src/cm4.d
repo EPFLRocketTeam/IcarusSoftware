@@ -51,7 +51,8 @@ Application/Src/cm4.o: ../Application/Src/cm4.c ../Application/Inc/cm4.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
  ../Core/Inc/main.h ../Application/Inc/control.h \
  ../Application/Inc/servo.h ../Application/Inc/dsv2.h \
- ../Application/Inc/servo_def.h ../Application/Inc/can_comm.h
+ ../Application/Inc/servo_def.h ../Application/Inc/can_comm.h \
+ ../Application/Inc/pipeline.h
 
 ../Application/Inc/cm4.h:
 
@@ -170,3 +171,5 @@ Application/Src/cm4.o: ../Application/Src/cm4.c ../Application/Inc/cm4.h \
 ../Application/Inc/servo_def.h:
 
 ../Application/Inc/can_comm.h:
+
+../Application/Inc/pipeline.h:
