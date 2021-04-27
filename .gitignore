@@ -51,3 +51,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+
+
+*.user
+__pycache__
+
+
+
+
+
+
