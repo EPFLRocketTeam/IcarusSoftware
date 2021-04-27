@@ -238,6 +238,7 @@ static void init_idle(CONTROL_INST_t * control) {
 	led_set_color(LED_GREEN);
 	storage_disable();
 	cm4_force_shutdown(control->cm4);
+	control->sensor_payload.acc_z = 1000;
 }
 
 static void idle(CONTROL_INST_t * control) {
