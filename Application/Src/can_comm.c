@@ -211,7 +211,7 @@ void can_send_thread(void * arg) {
 
 
 	for(;;) {
-
+		//SEMAPHORE DATA_READY
 		//SEND DATA HERE
 		CM4_PAYLOAD_COMMAND_t cmd = control_get_cmd();
 		can_setFrame((uint32_t) cmd.thrust, DATA_ID_THRUST_CMD, cmd.timestamp);
@@ -226,6 +226,10 @@ void can_send_thread(void * arg) {
 
 		vTaskDelayUntil( &last_wake_time, period );
 	}
+}
+
+void can_recv_thread(void * arg) {
+
 }
 
 
