@@ -6,6 +6,7 @@
 "Application/Src/feedback.o"
 "Application/Src/led.o"
 "Application/Src/msv2.o"
+"Application/Src/pipeline.o"
 "Application/Src/serial.o"
 "Application/Src/servo.o"
 "Application/Src/storage.o"

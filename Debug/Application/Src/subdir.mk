@@ -13,6 +13,7 @@ C_SRCS += \
 ../Application/Src/feedback.c \
 ../Application/Src/led.c \
 ../Application/Src/msv2.c \
+../Application/Src/pipeline.c \
 ../Application/Src/serial.c \
 ../Application/Src/servo.c \
 ../Application/Src/storage.c \
@@ -27,6 +28,7 @@ OBJS += \
 ./Application/Src/feedback.o \
 ./Application/Src/led.o \
 ./Application/Src/msv2.o \
+./Application/Src/pipeline.o \
 ./Application/Src/serial.o \
 ./Application/Src/servo.o \
 ./Application/Src/storage.o \
@@ -41,6 +43,7 @@ C_DEPS += \
 ./Application/Src/feedback.d \
 ./Application/Src/led.d \
 ./Application/Src/msv2.d \
+./Application/Src/pipeline.d \
 ./Application/Src/serial.d \
 ./Application/Src/servo.d \
 ./Application/Src/storage.d \
@@ -64,6 +67,8 @@ Application/Src/led.o: ../Application/Src/led.c Application/Src/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DUSE_LL_DRIVER -DSTM32F446xx -DDEBUG -c -I../Application/Inc -I../FlashAPI/Headers -I../FlashAPI/Inc -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Application/Src/led.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Application/Src/msv2.o: ../Application/Src/msv2.c Application/Src/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DUSE_LL_DRIVER -DSTM32F446xx -DDEBUG -c -I../Application/Inc -I../FlashAPI/Headers -I../FlashAPI/Inc -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Application/Src/msv2.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+Application/Src/pipeline.o: ../Application/Src/pipeline.c Application/Src/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DUSE_LL_DRIVER -DSTM32F446xx -DDEBUG -c -I../Application/Inc -I../FlashAPI/Headers -I../FlashAPI/Inc -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Application/Src/pipeline.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Application/Src/serial.o: ../Application/Src/serial.c Application/Src/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DUSE_LL_DRIVER -DSTM32F446xx -DDEBUG -c -I../Application/Inc -I../FlashAPI/Headers -I../FlashAPI/Inc -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Application/Src/serial.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Application/Src/servo.o: ../Application/Src/servo.c Application/Src/subdir.mk

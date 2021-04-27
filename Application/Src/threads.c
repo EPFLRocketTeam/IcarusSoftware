@@ -71,7 +71,6 @@
 static TaskHandle_t control_handle = NULL;
 static TaskHandle_t serial_handle = NULL;
 static TaskHandle_t storage_handle = NULL;
-static TaskHandle_t can_send_handle = NULL;
 
 
 /**********************
@@ -121,12 +120,6 @@ void threads_init(void) {
 	 *  Highest priority
 	 */
 	CREATE_THREAD(control_handle, control, control_thread, CONTROL_SZ, CONTROL_PRIO);
-
-	/*
-	 *  CAN send thread
-	 *  Highest priority
-	 */
-	CREATE_THREAD(can_send_handle, can_send, can_send_thread, CAN_SZ, CAN_PRIO);
 
 
 

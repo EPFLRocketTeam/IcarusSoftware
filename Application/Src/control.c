@@ -191,30 +191,6 @@ static void control_update(CONTROL_INST_t * control) {
 		control->counter -= (control->time - control->last_time);
 	}
 
-#if USE_PIPELINE == 0
-	while(can_msgPending()) {
-		control->msg = can_readBuffer();
-
-		if(control->msg.id == DATA_ID_ALTITUDE){
-			control->sensor_payload.baro = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_X) {
-			control->sensor_payload.acc_x = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_Y) {
-			control->sensor_payload.acc_y = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_Z) {
-			control->sensor_payload.acc_z = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_X) {
-			control->sensor_payload.gyro_x = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_Y) {
-			control->sensor_payload.gyro_y = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_Z) {
-			control->sensor_payload.gyro_z = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_PRESS_2) {
-			control->sensor_payload.cc_pressure = (int32_t) control->msg.data;
-		}
-	}
-#endif
-
 #if USE_DYNAMIXEL == 1
 	//read servo parameters
 	servo_sync(control->tvc_servo);

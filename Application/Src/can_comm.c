@@ -40,6 +40,7 @@ CAN_msg can_buffer[CAN_BUFFER_DEPTH];
 volatile int32_t can_buffer_pointer_rx = 0;
 volatile int32_t can_buffer_pointer_tx = 0;
 
+
 uint32_t can_readFrame(void);
 
 uint32_t pointer_inc(uint32_t val, uint32_t size) {
@@ -202,31 +203,6 @@ void can_init(void) {
 	CAN_Config(CAN_ID_PROPULSION_BOARD);
 }
 
-
-void can_send_thread(void * arg) {
-	static TickType_t last_wake_time;
-	static const TickType_t period = pdMS_TO_TICKS(CAN_HEART_BEAT);
-
-	last_wake_time = xTaskGetTickCount();
-
-
-	for(;;) {
-
-		//SEND DATA HERE
-		CM4_PAYLOAD_COMMAND_t cmd = control_get_cmd();
-		can_setFrame((uint32_t) cmd.thrust, DATA_ID_THRUST_CMD, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.dynamixel[0], DATA_ID_VANE_CMD_1, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.dynamixel[1], DATA_ID_VANE_CMD_2, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.dynamixel[2], DATA_ID_VANE_CMD_3, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.dynamixel[3], DATA_ID_VANE_CMD_4, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.position[2], DATA_ID_KALMAN_Z, cmd.timestamp);
-		can_setFrame((uint32_t) cmd.speed[2], DATA_ID_KALMAN_VZ, cmd.timestamp);
-
-
-
-		vTaskDelayUntil( &last_wake_time, period );
-	}
-}
 
 
 

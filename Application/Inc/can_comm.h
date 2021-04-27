@@ -174,8 +174,6 @@ void can_setFrame(uint32_t data, uint8_t data_id, uint32_t timestamp);
 uint32_t can_msgPending();
 CAN_msg can_readBuffer();
 
-void can_send_thread(void * arg);
-
 void can_init(void);
 
 
