@@ -1,2 +1,5 @@
-led.c:58:6:led_init	8	static
-led.c:68:6:led_set_color	16	static
+led.c:60:6:led_init	8	static
+led.c:70:6:led_set_color	16	static
+led.c:76:6:led_toggle	4	static
+led.c:88:6:led_on	4	static
+led.c:92:6:led_off	4	static

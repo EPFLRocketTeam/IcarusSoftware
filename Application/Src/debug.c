@@ -76,6 +76,7 @@ static void debug_recover(uint8_t * data, uint16_t data_len, uint8_t * resp, uin
 static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_command_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 static void debug_sensor_read(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
+static void debug_feedback_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len);
 
 
 /**********************
@@ -91,7 +92,8 @@ static void (*debug_fcn[]) (uint8_t *, uint16_t, uint8_t *, uint16_t *) = {
 		debug_recover,				//0x06
 		debug_sensor_write,			//0x07
 		debug_command_read,			//0x08
-		debug_sensor_read			//0x09
+		debug_sensor_read,			//0x09
+		debug_feedback_write		//0x0A
 };
 
 static uint16_t debug_fcn_max = sizeof(debug_fcn) / sizeof(void *);
@@ -219,6 +221,8 @@ static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp
 		control_set_sens(sens_data);
 		cm4_send_sensors(control_get_cm4(), &sens_data);
 
+		resp[0] = OK_LO;
+		resp[1] = OK_HI;
 
 		*resp_len = 2;
 	} else {
@@ -268,6 +272,12 @@ static void debug_sensor_read(uint8_t * data, uint16_t data_len, uint8_t * resp,
 
 	*resp_len = TRANSACTION_SENS_LEN;
 
+}
+
+static void debug_feedback_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
+	resp[0] = OK_LO;
+	resp[1] = OK_HI;
+	*resp_len = 2;
 }
 
 

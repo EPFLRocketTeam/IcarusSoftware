@@ -210,6 +210,7 @@ static void control_update(CONTROL_INST_t * control) {
 static void init_control(CONTROL_INST_t * control) {
 	control->sched = CONTROL_SCHED_NOTHING;
 	control->counter_active = 0;
+	control->command_payload.thrust = 2000;
 }
 
 static void init_idle(CONTROL_INST_t * control) {
@@ -273,6 +274,7 @@ static void init_shutdown(CONTROL_INST_t * control) {
 
 static void shutdown(CONTROL_INST_t * control) {
 	uint8_t shutdown = 0;
+	cm4_shutdown(control->cm4);
 	cm4_is_shutdown(control->cm4, &shutdown);
 	if(shutdown) {
 		init_idle(control);
@@ -324,6 +326,7 @@ void control_move_tvc(int32_t target) {
 }
 
 void control_boot(void) {
+	control.command_payload.thrust = 2000;
 	control_sched_set(&control, CONTROL_SCHED_BOOT);
 }
 

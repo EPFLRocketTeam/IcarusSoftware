@@ -19,6 +19,8 @@
 
 #include <cm4.h>
 
+#include <control.h>
+
 
 /**********************
  *	CONSTANTS
@@ -126,6 +128,7 @@ static PIPELINE_INST_t pipeline = {0};
 
 void pipeline_init(CM4_INST_t * cm4) {
 	pipeline.cm4 = cm4;
+	pipeline.control_data.thrust = 2000;
 }
 
 void pipeline_thread(void * arg) {
@@ -177,7 +180,14 @@ void pipeline_thread(void * arg) {
 			} else if(pipeline.msg.id == DATA_ID_PRESS_2) {
 				pipeline.feedback_data.cc_pressure = (int32_t) pipeline.msg.data;
 				pipeline.feedback_flags |= PIPELINE_FEEDBACK_THRUST;
+
+			} else if(pipeline.msg.id == DATA_ID_TVC_COMMAND) {
+				if(pipeline.msg.data == TVC_COMMAND_BOOT) {
+					control_boot();
+				}
 			}
+
+
 
 			if(pipeline.sensors_flags == PIPELINE_SENSORS_ALL) {
 				pipeline.sensors_flags = 0;

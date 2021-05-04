@@ -35,6 +35,7 @@
 #include <main.h>
 #include <control.h>
 #include <pipeline.h>
+#include <led.h>
 
 
 /**********************
@@ -135,8 +136,10 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 	MSV2_ERROR_t tmp = msv2_decode_fragment(&cm4->msv2, data);
 	if(tmp == MSV2_SUCCESS || tmp == MSV2_WRONG_CRC) {
 		if(cm4->msv2.rx.opcode & 0x80) { //CM4 is master
+			led_toggle();
 			cm4_generate_response(cm4);
 		} else { //HB is master
+			//led_off();
 			xSemaphoreGive(cm4->rx_sem);
 		}
 
@@ -145,22 +148,27 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 }
 
 void cm4_generate_response(CM4_INST_t * cm4) {
-	static uint8_t send_data[MSV2_MAX_DATA_LEN];
-	static uint16_t length = 0;
-	static uint16_t bin_length = 0;
-	uint8_t opcode = cm4->msv2.rx.opcode;
-	opcode &= ~CM4_C2H_PREFIX;
-	if(opcode < response_fcn_max) {
-		response_fcn[opcode](cm4->msv2.rx.data, cm4->msv2.rx.length, send_data, &length);
-		//length is in words
-		bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
-		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
-	} else {
-		send_data[0] = MSV2_CRC_ERROR_LO;
-		send_data[1] = MSV2_CRC_ERROR_HI;
-		length = 2;
-		bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
-		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+	if (xSemaphoreTake(cm4_busy_sem, DRIV_TIMEOUT) == pdTRUE) {
+		static uint8_t send_data[MSV2_MAX_DATA_LEN];
+		static uint16_t length = 0;
+		static uint16_t bin_length = 0;
+		uint8_t opcode = cm4->msv2.rx.opcode;
+		opcode &= ~CM4_C2H_PREFIX;
+		if(opcode < response_fcn_max) {
+			response_fcn[opcode](cm4->msv2.rx.data, cm4->msv2.rx.length, send_data, &length);
+			//length is in words
+			bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
+			//No response for now
+			//serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+		} else {
+			send_data[0] = MSV2_CRC_ERROR_LO;
+			send_data[1] = MSV2_CRC_ERROR_HI;
+			length = 2;
+			bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
+			//no response for now
+			//serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+		}
+		xSemaphoreGive(cm4_busy_sem);
 	}
 }
 
@@ -209,6 +217,7 @@ static void cm4_response_command(uint8_t * data, uint16_t data_len, uint8_t * re
 
 CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t ** resp_data, uint16_t * resp_len) {
 	if (xSemaphoreTake(cm4_busy_sem, DRIV_TIMEOUT) == pdTRUE) {
+		//led_on();
 		uint16_t frame_length = msv2_create_frame(&cm4->msv2, cmd, length/2, data);
 		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), frame_length);
 		if(cm4->rx_sem == NULL) {
