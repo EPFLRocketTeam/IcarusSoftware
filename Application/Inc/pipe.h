@@ -1,13 +1,13 @@
-/*  Title       : Pipeline
- *  Filename    : pipeline.h
+/*  Title       : Pipe
+ *  Filename    : pipe.h
  *  Author      : iacopo sprenger
- *  Date        : 27.04.2021
+ *  Date        : 06.05.2021
  *  Version     : 0.1
- *  Description : data pipeline
+ *  Description : data pipe
  */
 
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#ifndef PIPE_H
+#define PIPE_H
 
 
 
@@ -16,14 +16,13 @@
  **********************/
 
 #include <stdint.h>
-
-#include <cm4.h>
+#include <cmsis_os.h>
 
 /**********************
  *  CONSTANTS
  **********************/
 
-
+#define PIPE_MAX_SUBSCRIBERS	16
 
 /**********************
  *  MACROS
@@ -35,16 +34,24 @@
  **********************/
 
 
+
 typedef enum PIPE_ERROR {
 	PIPE_SUCCESS,
+	PIPE_BUSY,
+	PIPE_MAX_SUB,
 	PIPE_ERROR
 }PIPE_ERROR_t;
 
 typedef struct PIPE_INST {
 	uint32_t id;
 	void * data;
-	//semaphore
+	uint32_t data_len;
+	void (*subscribers[PIPE_MAX_SUBSCRIBERS]) (void *);
+	uint16_t subscribers_len;
+	SemaphoreHandle_t mutex;
+	StaticSemaphore_t mutex_buffer;
 }PIPE_INST_t;
+
 
 
 
@@ -61,16 +68,19 @@ typedef struct PIPE_INST {
 extern "C"{
 #endif
 
-void pipeline_init(CM4_INST_t * cm4);
+void pipe_global_init(void);
 
-void pipeline_thread(void * arg);
+PIPE_ERROR_t pipe_init(PIPE_INST_t * pipe, uint32_t data_len);
 
-void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd);
+PIPE_ERROR_t pipe_subscribe(PIPE_INST_t * pipe, void (*callback) (void *));
+
+PIPE_ERROR_t pipe_publish(PIPE_INST_t * pipe, void * data);
+
 
 #ifdef __cplusplus
 } // extern "C"
 #endif /* __cplusplus */
 
-#endif /* PIPELINE_H */
+#endif /* PIPE_H */
 
 /* END */

@@ -16,7 +16,6 @@ import msv2
 
 
 
-
 DATA_BUFFER_LEN = 500
 HEART_BEAT = 100
 
@@ -385,7 +384,6 @@ class Serial_worker(QObject):
                 if(last_recv > total_data):
                     self.downloading = 0
                     break
-               
 
 
 

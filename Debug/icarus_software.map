@@ -1123,6 +1123,73 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x46 Application/Src/msv2.o
  .debug_macro   0x0000000000000000       0x16 Application/Src/msv2.o
  .debug_macro   0x0000000000000000       0x34 Application/Src/msv2.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .group         0x0000000000000000        0xc Application/Src/pipe.o
+ .text          0x0000000000000000        0x0 Application/Src/pipe.o
+ .data          0x0000000000000000        0x0 Application/Src/pipe.o
+ .bss           0x0000000000000000        0x0 Application/Src/pipe.o
+ .text.pipe_global_init
+                0x0000000000000000        0xe Application/Src/pipe.o
+ .text.pipe_init
+                0x0000000000000000       0x48 Application/Src/pipe.o
+ .text.pipe_subscribe
+                0x0000000000000000       0x46 Application/Src/pipe.o
+ .text.pipe_publish
+                0x0000000000000000       0x94 Application/Src/pipe.o
+ .bss.pipe_id.6402
+                0x0000000000000000        0x4 Application/Src/pipe.o
+ .debug_info    0x0000000000000000      0x461 Application/Src/pipe.o
+ .debug_abbrev  0x0000000000000000      0x1ba Application/Src/pipe.o
+ .debug_aranges
+                0x0000000000000000       0x38 Application/Src/pipe.o
+ .debug_ranges  0x0000000000000000       0x28 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x13b Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0xaae Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x22 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x8e Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x51 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x103 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x6a Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x1df Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x174 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0xf9 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x15a Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0xde Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x1c Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x26 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000      0x4f6 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0xb5 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0xaa Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x91 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x86 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x63 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0x19 Application/Src/pipe.o
+ .debug_macro   0x0000000000000000       0xf2 Application/Src/pipe.o
+ .debug_line    0x0000000000000000      0x605 Application/Src/pipe.o
+ .debug_str     0x0000000000000000     0x9f7c Application/Src/pipe.o
+ .comment       0x0000000000000000       0x54 Application/Src/pipe.o
+ .debug_frame   0x0000000000000000       0x9c Application/Src/pipe.o
+ .ARM.attributes
+                0x0000000000000000       0x34 Application/Src/pipe.o
  .group         0x0000000000000000        0xc Application/Src/pipeline.o
  .group         0x0000000000000000        0xc Application/Src/pipeline.o
  .group         0x0000000000000000        0xc Application/Src/pipeline.o
@@ -6777,6 +6844,7 @@ LOAD Application/Src/dsv2.o
 LOAD Application/Src/feedback.o
 LOAD Application/Src/led.o
 LOAD Application/Src/msv2.o
+LOAD Application/Src/pipe.o
 LOAD Application/Src/pipeline.o
 LOAD Application/Src/serial.o
 LOAD Application/Src/servo.o
@@ -7956,9 +8024,9 @@ LOAD /opt/st/stm32cubeide_1.6.1/plugins/com.st.stm32cube.ide.mcu.externaltools.g
  .rodata        0x000000000800ba30        0x5 Middlewares/Third_Party/FreeRTOS/Source/tasks.o
  *(.rodata*)
  *fill*         0x000000000800ba35        0x3 
- .rodata.period.10483
+ .rodata.period.10491
                 0x000000000800ba38        0x4 Application/Src/control.o
- .rodata.period.10483
+ .rodata.period.10491
                 0x000000000800ba3c        0x4 Application/Src/pipeline.o
  .rodata.AHBPrescTable
                 0x000000000800ba40       0x10 Core/Src/system_stm32f4xx.o
@@ -8066,18 +8134,18 @@ LOAD /opt/st/stm32cubeide_1.6.1/plugins/com.st.stm32cube.ide.mcu.externaltools.g
                 0x00000000200000ac        0x4 Application/Src/cm4.o
  .bss.cm4_busy_sem_buffer
                 0x00000000200000b0       0x48 Application/Src/cm4.o
- .bss.id_counter.10462
+ .bss.id_counter.10470
                 0x00000000200000f8        0x4 Application/Src/cm4.o
- .bss.send_data.10472
+ .bss.send_data.10480
                 0x00000000200000fc      0x200 Application/Src/cm4.o
- .bss.length.10473
+ .bss.length.10481
                 0x00000000200002fc        0x2 Application/Src/cm4.o
- .bss.bin_length.10474
+ .bss.bin_length.10482
                 0x00000000200002fe        0x2 Application/Src/cm4.o
  .bss.control   0x0000000020000300       0x90 Application/Src/control.o
- .bss.cm4.10484
+ .bss.cm4.10492
                 0x0000000020000390     0x1488 Application/Src/control.o
- .bss.last_wake_time.10482
+ .bss.last_wake_time.10490
                 0x0000000020001818        0x4 Application/Src/control.o
  .bss.send_data.10495
                 0x000000002000181c      0x200 Application/Src/debug.o
@@ -8093,7 +8161,7 @@ LOAD /opt/st/stm32cubeide_1.6.1/plugins/com.st.stm32cube.ide.mcu.externaltools.g
  .bss.id_counter.8848
                 0x0000000020001a28        0x4 Application/Src/msv2.o
  .bss.pipeline  0x0000000020001a2c       0x90 Application/Src/pipeline.o
- .bss.last_wake_time.10482
+ .bss.last_wake_time.10490
                 0x0000000020001abc        0x4 Application/Src/pipeline.o
  .bss.serial_devices
                 0x0000000020001ac0       0x40 Application/Src/serial.o
@@ -8137,23 +8205,23 @@ LOAD /opt/st/stm32cubeide_1.6.1/plugins/com.st.stm32cube.ide.mcu.externaltools.g
                 0x0000000020001bfc        0x4 Application/Src/threads.o
  .bss.pipeline_handle
                 0x0000000020001c00        0x4 Application/Src/threads.o
- .bss.debug.10445
+ .bss.debug.10453
                 0x0000000020001c04     0x1438 Application/Src/threads.o
- .bss.storage_stack.10447
+ .bss.storage_stack.10455
                 0x000000002000303c     0x1000 Application/Src/threads.o
- .bss.storage_buffer.10446
+ .bss.storage_buffer.10454
                 0x000000002000403c       0x58 Application/Src/threads.o
- .bss.serial_stack.10449
+ .bss.serial_stack.10457
                 0x0000000020004094     0x1000 Application/Src/threads.o
- .bss.serial_buffer.10448
+ .bss.serial_buffer.10456
                 0x0000000020005094       0x58 Application/Src/threads.o
- .bss.control_stack.10451
+ .bss.control_stack.10459
                 0x00000000200050ec     0x1000 Application/Src/threads.o
- .bss.control_buffer.10450
+ .bss.control_buffer.10458
                 0x00000000200060ec       0x58 Application/Src/threads.o
- .bss.pipeline_stack.10453
+ .bss.pipeline_stack.10461
                 0x0000000020006144     0x1000 Application/Src/threads.o
- .bss.pipeline_buffer.10452
+ .bss.pipeline_buffer.10460
                 0x0000000020007144       0x58 Application/Src/threads.o
  .bss.xIdleTaskTCBBuffer
                 0x000000002000719c       0x58 Core/Src/freertos.o

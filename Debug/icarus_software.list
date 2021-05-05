@@ -5344,6 +5344,7 @@ void pipeline_thread(void * arg) {
  80024ec:	4b1e      	ldr	r3, [pc, #120]	; (8002568 <pipeline_thread+0x1dc>)
  80024ee:	f883 2070 	strb.w	r2, [r3, #112]	; 0x70
  80024f2:	e009      	b.n	8002508 <pipeline_thread+0x17c>
+
 			} else if(pipeline.msg.id == DATA_ID_TVC_COMMAND) {
  80024f4:	4b1c      	ldr	r3, [pc, #112]	; (8002568 <pipeline_thread+0x1dc>)
  80024f6:	791b      	ldrb	r3, [r3, #4]
