@@ -1,7 +1,0 @@
-dsv2.c:61:17:calc_crc	536	static
-dsv2.c:108:6:dsv2_init	16	static
-dsv2.c:113:10:dsv2_create_frame	24	static
-dsv2.c:132:14:dsv2_decode_func	16	static
-dsv2.c:140:14:dsv2_decode_fragment	24	static
-dsv2.c:247:11:dsv2_rx_data	16	static
-dsv2.c:251:11:dsv2_tx_data	16	static

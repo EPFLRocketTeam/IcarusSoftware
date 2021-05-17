@@ -1,7 +1,0 @@
-qspi_driver.c:13:9:get_default_command	80	static
-qspi_driver.c:33:6:with_address	16	static
-qspi_driver.c:39:6:with_data	16	static
-qspi_driver.c:48:6:qspi_run	16	static
-qspi_driver.c:53:6:qspi_poll	48	static
-qspi_driver.c:68:6:qspi_transmit	16	static
-qspi_driver.c:72:6:qspi_receive	16	static
