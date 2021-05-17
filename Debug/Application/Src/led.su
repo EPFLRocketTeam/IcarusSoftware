@@ -1,2 +1,0 @@
-led.c:58:6:led_init	8	static
-led.c:68:6:led_set_color	16	static

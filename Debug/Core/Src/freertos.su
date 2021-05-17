@@ -1,5 +1,0 @@
-freertos.c:73:13:configureTimerForRunTimeStats	4	static
-freertos.c:78:22:getRunTimeCounterValue	4	static
-freertos.c:88:6:vApplicationGetIdleTaskMemory	24	static
-freertos.c:102:6:MX_FREERTOS_Init	48	static
-freertos.c:141:6:StartDefaultTask	16	static
