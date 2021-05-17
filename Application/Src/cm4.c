@@ -281,7 +281,7 @@ CM4_ERROR_t cm4_send_sensors(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens) {
 	util_encode_i32(send_data+20, sens->gyro_y);
 	util_encode_i32(send_data+24, sens->gyro_z);
 
-	util_encode_i32(send_data+28, sens->baro);
+	util_encode_i32(send_data+28, sens->alti);
 
 	error |= cm4_send(cm4, CM4_H2C_SENSORS, send_data, send_len , &recv_data, &recv_len);
 

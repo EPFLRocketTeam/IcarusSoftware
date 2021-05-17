@@ -194,6 +194,13 @@ static void control_update(CONTROL_INST_t * control) {
 		control->counter -= (control->time - control->last_time);
 	}
 
+	static uint16_t hb_count = 0;
+	hb_count += CONTROL_HEART_BEAT;
+	if(hb_count > 1000) {
+		pipeline_send_heartbeat(control->state, control->time);
+		hb_count = 0;
+	}
+
 #if USE_DYNAMIXEL == 1
 	//read servo parameters
 	servo_sync(control->tvc_servo);

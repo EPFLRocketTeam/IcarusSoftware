@@ -84,7 +84,7 @@ typedef enum PIPELINE_FEEDBACK_FLAGS {
 	PIPELINE_FEEDBACK_DYN2 		= 0b00100,
 	PIPELINE_FEEDBACK_DYN3 		= 0b01000,
 	PIPELINE_FEEDBACK_DYN4 		= 0b10000,
-	PIPELINE_FEEDBACK_ALL 		= 0b11111
+	PIPELINE_FEEDBACK_ALL 		= 0b00001
 }PIPELINE_FEEDBACK_FLAGS_t;
 
 typedef struct PIPELINE_FEEDBACK_DATA {
@@ -184,6 +184,10 @@ void pipeline_thread(void * arg) {
 			} else if(pipeline.msg.id == DATA_ID_TVC_COMMAND) {
 				if(pipeline.msg.data == TVC_COMMAND_BOOT) {
 					control_boot();
+				} else if(pipeline.msg.data == TVC_COMMAND_SHUTDOWN) {
+					control_shutdown();
+				} else if(pipeline.msg.data == TVC_COMMAND_ABORT) {
+					control_abort();
 				}
 			}
 
@@ -211,8 +215,18 @@ void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd) {
 	can_setFrame((uint32_t) cmd->dynamixel[1], DATA_ID_VANE_CMD_2, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->dynamixel[2], DATA_ID_VANE_CMD_3, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->dynamixel[3], DATA_ID_VANE_CMD_4, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->position[0], DATA_ID_KALMAN_X, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->speed[0], DATA_ID_KALMAN_VX, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->position[1], DATA_ID_KALMAN_Y, cmd->timestamp);
+	can_setFrame((uint32_t) cmd->speed[1], DATA_ID_KALMAN_VY, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->position[2], DATA_ID_KALMAN_Z, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->speed[2], DATA_ID_KALMAN_VZ, cmd->timestamp);
+
+}
+
+
+void pipeline_send_heartbeat(CONTROL_STATE_t state, uint32_t time) {
+	can_setFrame((uint32_t) state, DATA_ID_TVC_HEARTBEAT, time);
 }
 
 

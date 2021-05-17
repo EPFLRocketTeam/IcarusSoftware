@@ -34,6 +34,7 @@
 #define TVC_MOVE_LEN  (4)
 #define TRANSACTION_SENS_LEN  (28)
 #define TRANSACTION_CMD_LEN  (46)
+#define TRANSACTION_FEEDBACK_LEN (4)
 
 
 
@@ -275,9 +276,16 @@ static void debug_sensor_read(uint8_t * data, uint16_t data_len, uint8_t * resp,
 }
 
 static void debug_feedback_write(uint8_t * data, uint16_t data_len, uint8_t * resp, uint16_t * resp_len) {
-	resp[0] = OK_LO;
-	resp[1] = OK_HI;
-	*resp_len = 2;
+	if(data_len == TRANSACTION_FEEDBACK_LEN) {
+		CM4_PAYLOAD_FEEDBACK_t feedback_data = {};
+		feedback_data.cc_pressure = util_decode_u32(data);
+
+		cm4_send_feedback(control_get_cm4(), &feedback_data);
+
+		resp[0] = OK_LO;
+		resp[1] = OK_HI;
+		*resp_len = 2;
+	}
 }
 
 

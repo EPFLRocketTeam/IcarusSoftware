@@ -200,7 +200,7 @@ uint32_t can_readFrame(void) {
 
 
 void can_init(void) {
-	CAN_Config(CAN_ID_PROPULSION_BOARD);
+	CAN_Config(CAN_ID_TVC_BOARD);
 }
 
 
