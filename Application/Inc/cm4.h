@@ -24,17 +24,18 @@
  *  CONSTANTS
  **********************/
 
-#define CM4_MASTER_PING			0x00
-#define CM4_MASTER_SHUTDOWN		0x01
-#define CM4_MASTER_PAYLOAD		0x02
-#define CM4_MASTER SENSORS		0x03
+#define CM4_H2C_PING		0x00
+#define CM4_H2C_SHUTDOWN	0x01
+#define CM4_H2C_PAYLOAD		0x02
+#define CM4_H2C_SENSORS		0x03
+#define CM4_H2C_FEEDBACK	0x04
 
 
 //Initiated by CM4
-#define CM4_SALVE_PREFIX		0x80
+#define CM4_C2H_PREFIX		0x80
 
-#define CM4_SLAVE_PING			(0x00 | CM4_SLAVE_PREFIX)
-#define CM4_SLAVE_COMMAND		(0x01 | CM4_SLAVE_PREFIX)
+#define CM4_C2H_PING		(0x00 | CM4_SLAVE_PREFIX)
+#define CM4_C2H_COMMAND		(0x01 | CM4_SLAVE_PREFIX)
 
 
 
@@ -82,9 +83,13 @@ typedef struct CM4_PAYLOAD_SENSOR {
 	int32_t gyro_z;
 	int32_t baro;
 	int32_t alti;
+}CM4_PAYLOAD_SENSOR_t;
+
+typedef struct CM4_PAYLOAD_FEEDBACK {
+	uint32_t timestamp;
 	int32_t cc_pressure;
 	int32_t dynamixel[4];
-}CM4_PAYLOAD_SENSOR_t;
+}CM4_PAYLOAD_FEEDBACK_t;
 
 typedef struct CM4_PAYLOAD_COMMAND {
 	uint32_t timestamp;
@@ -118,7 +123,9 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data);
 
 CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t ** resp_data, uint16_t * resp_len);
 
-CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_PAYLOAD_COMMAND_t * cmd);
+CM4_ERROR_t cm4_send_sensors(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens);
+
+CM4_ERROR_t cm4_send_feedback(CM4_INST_t * cm4, CM4_PAYLOAD_FEEDBACK_t * feed);
 
 CM4_ERROR_t cm4_boot(CM4_INST_t * cm4);
 

@@ -17,6 +17,7 @@
 #include <can_comm.h>
 #include <servo.h>
 #include <cm4.h>
+#include <pipeline.h>
 
 /**********************
  *	CONFIGURATION
@@ -143,6 +144,8 @@ void control_thread(void * arg) {
 
 	cm4_init(&cm4);
 
+	pipeline_init(&cm4);
+
 	control.cm4 = &cm4;
 
 
@@ -191,29 +194,12 @@ static void control_update(CONTROL_INST_t * control) {
 		control->counter -= (control->time - control->last_time);
 	}
 
-#if USE_PIPELINE == 0
-	while(can_msgPending()) {
-		control->msg = can_readBuffer();
-
-		if(control->msg.id == DATA_ID_ALTITUDE){
-			control->sensor_payload.baro = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_X) {
-			control->sensor_payload.acc_x = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_Y) {
-			control->sensor_payload.acc_y = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_ACCELERATION_Z) {
-			control->sensor_payload.acc_z = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_X) {
-			control->sensor_payload.gyro_x = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_Y) {
-			control->sensor_payload.gyro_y = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_GYRO_Z) {
-			control->sensor_payload.gyro_z = (int32_t) control->msg.data;
-		} else if(control->msg.id == DATA_ID_PRESS_2) {
-			control->sensor_payload.cc_pressure = (int32_t) control->msg.data;
-		}
+	static uint16_t hb_count = 0;
+	hb_count += CONTROL_HEART_BEAT;
+	if(hb_count > 1000) {
+		pipeline_send_heartbeat(control->state, control->time);
+		hb_count = 0;
 	}
-#endif
 
 #if USE_DYNAMIXEL == 1
 	//read servo parameters
@@ -231,6 +217,7 @@ static void control_update(CONTROL_INST_t * control) {
 static void init_control(CONTROL_INST_t * control) {
 	control->sched = CONTROL_SCHED_NOTHING;
 	control->counter_active = 0;
+	control->command_payload.thrust = 2000;
 }
 
 static void init_idle(CONTROL_INST_t * control) {
@@ -280,10 +267,6 @@ static void init_compute(CONTROL_INST_t * control) {
 
 static void compute(CONTROL_INST_t * control) {
 
-#if USE_PIPELINE == 0
-	cm4_transaction(control->cm4, &control->sensor_payload, &control->command_payload);
-#endif
-
 	if(control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN)) {
 		init_shutdown(control);
 		control_sched_done(control, CONTROL_SCHED_SHUTDOWN);
@@ -299,6 +282,7 @@ static void init_shutdown(CONTROL_INST_t * control) {
 
 static void shutdown(CONTROL_INST_t * control) {
 	uint8_t shutdown = 0;
+	cm4_shutdown(control->cm4);
 	cm4_is_shutdown(control->cm4, &shutdown);
 	if(shutdown) {
 		init_idle(control);
@@ -350,6 +334,7 @@ void control_move_tvc(int32_t target) {
 }
 
 void control_boot(void) {
+	control.command_payload.thrust = 2000;
 	control_sched_set(&control, CONTROL_SCHED_BOOT);
 }
 
@@ -374,6 +359,10 @@ CONTROL_STATUS_t control_get_status() {
 	status.tvc_position = control.tvc_servo->position;
 
 	return status;
+}
+
+CM4_INST_t * control_get_cm4(void) {
+	return control.cm4;
 }
 
 void control_set_sens(CM4_PAYLOAD_SENSOR_t sens) {

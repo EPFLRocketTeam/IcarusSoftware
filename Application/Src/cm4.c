@@ -34,6 +34,8 @@
 #include <serial.h>
 #include <main.h>
 #include <control.h>
+#include <pipeline.h>
+#include <led.h>
 
 
 /**********************
@@ -134,8 +136,10 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 	MSV2_ERROR_t tmp = msv2_decode_fragment(&cm4->msv2, data);
 	if(tmp == MSV2_SUCCESS || tmp == MSV2_WRONG_CRC) {
 		if(cm4->msv2.rx.opcode & 0x80) { //CM4 is master
+			led_toggle();
 			cm4_generate_response(cm4);
 		} else { //HB is master
+			//led_off();
 			xSemaphoreGive(cm4->rx_sem);
 		}
 
@@ -144,22 +148,27 @@ SERIAL_RET_t cm4_decode_fcn(void * inst, uint8_t data) {
 }
 
 void cm4_generate_response(CM4_INST_t * cm4) {
-	static uint8_t send_data[MSV2_MAX_DATA_LEN];
-	static uint16_t length = 0;
-	static uint16_t bin_length = 0;
-	uint8_t opcode = cm4->msv2.rx.opcode;
-	opcode &= ~CM4_SALVE_PREFIX;
-	if(opcode < response_fcn_max) {
-		response_fcn[opcode](cm4->msv2.rx.data, cm4->msv2.rx.length, send_data, &length);
-		//length is in words
-		bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
-		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
-	} else {
-		send_data[0] = MSV2_CRC_ERROR_LO;
-		send_data[1] = MSV2_CRC_ERROR_HI;
-		length = 2;
-		bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
-		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+	if (xSemaphoreTake(cm4_busy_sem, DRIV_TIMEOUT) == pdTRUE) {
+		static uint8_t send_data[MSV2_MAX_DATA_LEN];
+		static uint16_t length = 0;
+		static uint16_t bin_length = 0;
+		uint8_t opcode = cm4->msv2.rx.opcode;
+		opcode &= ~CM4_C2H_PREFIX;
+		if(opcode < response_fcn_max) {
+			response_fcn[opcode](cm4->msv2.rx.data, cm4->msv2.rx.length, send_data, &length);
+			//length is in words
+			bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
+			//No response for now
+			//serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+		} else {
+			send_data[0] = MSV2_CRC_ERROR_LO;
+			send_data[1] = MSV2_CRC_ERROR_HI;
+			length = 2;
+			bin_length = msv2_create_frame(&cm4->msv2, cm4->msv2.rx.opcode, length/2, send_data);
+			//no response for now
+			//serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), bin_length);
+		}
+		xSemaphoreGive(cm4_busy_sem);
 	}
 }
 
@@ -192,6 +201,8 @@ static void cm4_response_command(uint8_t * data, uint16_t data_len, uint8_t * re
 
 		control_set_cmd(cmd);
 
+		pipeline_send_control(&cmd);
+
 		resp[0] = MSV2_OK_LO;
 		resp[1] = MSV2_OK_HI;
 		*resp_len = 2;
@@ -206,6 +217,7 @@ static void cm4_response_command(uint8_t * data, uint16_t data_len, uint8_t * re
 
 CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t length, uint8_t ** resp_data, uint16_t * resp_len) {
 	if (xSemaphoreTake(cm4_busy_sem, DRIV_TIMEOUT) == pdTRUE) {
+		//led_on();
 		uint16_t frame_length = msv2_create_frame(&cm4->msv2, cmd, length/2, data);
 		serial_send(&cm4->ser, msv2_tx_data(&cm4->msv2), frame_length);
 		if(cm4->rx_sem == NULL) {
@@ -247,18 +259,18 @@ CM4_ERROR_t cm4_send(CM4_INST_t * cm4, uint8_t cmd, uint8_t * data, uint16_t len
 CM4_ERROR_t cm4_ping(CM4_INST_t * cm4) {
 	CM4_ERROR_t error = 0;
 	uint8_t data[] = {0xc5, 0x5c};
-	error |= cm4_send(cm4, CM4_MASTER_PING, data, 2, NULL, NULL);
+	error |= cm4_send(cm4, CM4_H2C_PING, data, 2, NULL, NULL);
 
 	return error;
 }
 
 
-CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_PAYLOAD_COMMAND_t * cmd) {
+CM4_ERROR_t cm4_send_sensors(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens) {
 	CM4_ERROR_t error = 0;
 	uint8_t * recv_data;
 	uint16_t recv_len = 0;
-	uint16_t send_len = 52;
-	uint8_t send_data[52];
+	uint16_t send_len = 32;
+	uint8_t send_data[32];
 
 	util_encode_u32(send_data, sens->timestamp);
 	util_encode_i32(send_data+4, sens->acc_x);
@@ -269,38 +281,35 @@ CM4_ERROR_t cm4_transaction(CM4_INST_t * cm4, CM4_PAYLOAD_SENSOR_t * sens, CM4_P
 	util_encode_i32(send_data+20, sens->gyro_y);
 	util_encode_i32(send_data+24, sens->gyro_z);
 
-	util_encode_i32(send_data+28, sens->baro);
-	util_encode_i32(send_data+32, sens->cc_pressure);
+	util_encode_i32(send_data+28, sens->alti);
 
-	util_encode_i32(send_data+36, sens->dynamixel[0]);
-	util_encode_i32(send_data+40, sens->dynamixel[1]);
-	util_encode_i32(send_data+44, sens->dynamixel[2]);
-	util_encode_i32(send_data+48, sens->dynamixel[3]);
+	error |= cm4_send(cm4, CM4_H2C_SENSORS, send_data, send_len , &recv_data, &recv_len);
 
-	error |= cm4_send(cm4, CM4_MASTER_PAYLOAD, send_data, send_len , &recv_data, &recv_len);
+	//EVENTUAL ACKNOWLEGE
 
-	if(recv_len == 50) {
-		cmd->timestamp = util_decode_u32(recv_data);
-		cmd->thrust = util_decode_i32(recv_data+4);
+	return error;
+}
 
-		cmd->dynamixel[0] = util_decode_i32(recv_data+8);
-		cmd->dynamixel[1] = util_decode_i32(recv_data+12);
-		cmd->dynamixel[2] = util_decode_i32(recv_data+16);
-		cmd->dynamixel[3] = util_decode_i32(recv_data+20);
+CM4_ERROR_t cm4_send_feedback(CM4_INST_t * cm4, CM4_PAYLOAD_FEEDBACK_t * feed) {
+	CM4_ERROR_t error = 0;
+	uint8_t * recv_data;
+	uint16_t recv_len = 0;
+	uint16_t send_len = 24;
+	uint8_t send_data[24];
 
-		cmd->position[0] = util_decode_i32(recv_data+24);
-		cmd->position[1] = util_decode_i32(recv_data+28);
-		cmd->position[2] = util_decode_i32(recv_data+32);
+	util_encode_u32(send_data, feed->timestamp);
+	util_encode_i32(send_data+4, feed->cc_pressure);
 
-		cmd->speed[0] = util_decode_i32(recv_data+36);
-		cmd->speed[1] = util_decode_i32(recv_data+40);
-		cmd->speed[2] = util_decode_i32(recv_data+44);
+	util_encode_i32(send_data+8, feed->dynamixel[0]);
+	util_encode_i32(send_data+12, feed->dynamixel[1]);
+	util_encode_i32(send_data+16, feed->dynamixel[2]);
+	util_encode_i32(send_data+20, feed->dynamixel[3]);
 
-		cmd->state = util_decode_u16(recv_data+48);
+	error |= cm4_send(cm4, CM4_H2C_FEEDBACK, send_data, send_len , &recv_data, &recv_len);
 
-	}
+	//EVENTUAL ACKNOWLEGE
 
-	return CM4_SUCCESS;
+	return error;
 }
 
 CM4_ERROR_t cm4_boot(CM4_INST_t * cm4) {
@@ -324,7 +333,7 @@ CM4_ERROR_t cm4_is_ready(CM4_INST_t * cm4, uint8_t * ready) {
 CM4_ERROR_t cm4_shutdown(CM4_INST_t * cm4) {
 	//send shutdown command through uart
 	uint8_t data[] = {0x00, 0x00};
-	cm4_send(cm4, CM4_MASTER_SHUTDOWN, data, 2, NULL, NULL);
+	cm4_send(cm4, CM4_H2C_SHUTDOWN, data, 2, NULL, NULL);
 
 	return CM4_SUCCESS;
 }

@@ -20,6 +20,8 @@
 
 #define LED_TIM			htim8
 
+#define LED_PORT		LED_GPIO_Port
+#define LED_PIN			LED_Pin
 /**********************
  *	CONSTANTS
  **********************/
@@ -69,6 +71,26 @@ void led_set_color(uint8_t r, uint8_t g, uint8_t b) {
 	LED_TIM.Instance->CCR1 = r;
 	LED_TIM.Instance->CCR2 = g;
 	LED_TIM.Instance->CCR3 = b;
+}
+
+void led_toggle(void) {
+	static uint8_t state = 0;
+
+	if(state) {
+		LED_PORT->BSRR = LED_PIN;
+	} else {
+		LED_PORT->BSRR = LED_PIN << 16;
+	}
+
+	state = !state;
+}
+
+void led_on(void) {
+	LED_PORT->BSRR = LED_PIN << 16;
+}
+
+void led_off(void) {
+	LED_PORT->BSRR = LED_PIN;
 }
 
 

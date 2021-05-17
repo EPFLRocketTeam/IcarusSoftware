@@ -93,14 +93,22 @@
 #define DATA_ID_VANE_POS_3		94
 #define DATA_ID_VANE_POS_4		95
 
+#define DATA_ID_TVC_COMMAND		100
+#define DATA_ID_THRUST_CMD		101
+#define DATA_ID_VANE_CMD_1		102
+#define DATA_ID_VANE_CMD_2		103
+#define DATA_ID_VANE_CMD_3		104
+#define DATA_ID_VANE_CMD_4		105
 
-#define DATA_ID_THRUST_CMD		100
-#define DATA_ID_VANE_CMD_1		101
-#define DATA_ID_VANE_CMD_2		102
-#define DATA_ID_VANE_CMD_3		103
-#define DATA_ID_VANE_CMD_4		104
+#define DATA_ID_TVC_HEARTBEAT	106
 
+typedef enum TVC_COMMAND_TYPE {
+	TVC_COMMAND_NO_OPERATION = 0x00,
+	TVC_COMMAND_BOOT = 0x01,
+	TVC_COMMAND_SHUTDOWN = 0x02,
+	TVC_COMMAND_ABORT = 0x03
 
+}TVC_COMMAND_TYPE_t;
 
 
 typedef enum COMMAND_TYPE {
@@ -124,7 +132,7 @@ typedef enum COMMAND_TYPE {
 #define CAN_ID_DEBUG_BOARD 6
 #define CAN_ID_DEFAULT 7
 #define CAN_ID_PROPULSION_BOARD 5
-#define CAN_ID_VALVE_BOARD 8
+#define CAN_ID_TVC_BOARD 8
 #define CAN_ID_CODE_BOARD 10
 #define CAN_ID_SENSOR_TELEMETRY_BOARD 9
 
@@ -174,9 +182,6 @@ void can_setFrame(uint32_t data, uint8_t data_id, uint32_t timestamp);
 uint32_t can_msgPending();
 CAN_msg can_readBuffer();
 
-void can_send_thread(void * arg);
-
-void can_recv_thread(void * arg);
 
 void can_init(void);
 
