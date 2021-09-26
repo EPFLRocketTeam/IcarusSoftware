@@ -381,6 +381,14 @@ CM4_PAYLOAD_COMMAND_t control_get_cmd(void) {
 	return control.command_payload;
 }
 
+void control_set_fdb(CM4_PAYLOAD_FEEDBACK_t fdb) {
+	control.feedback_payload = fdb;
+}
+
+CM4_PAYLOAD_FEEDBACK_t control_get_fdb(void) {
+	return control.feedback_payload;
+}
+
 
 static uint8_t control_sched_should_run(CONTROL_INST_t * control, CONTROL_SCHED_t num) {
 	return control->sched == num;

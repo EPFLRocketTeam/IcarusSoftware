@@ -60,17 +60,14 @@
 
 typedef struct  STORAGE_DATA{
 	uint16_t sample_id;
-	int16_t temp_1;
-	int16_t temp_2;
-	int16_t temp_3;
-	int32_t pres_1;
-	int32_t pres_2;
-	int32_t motor_pos;
-	uint32_t sensor_time;
-	uint8_t system_state;
-	uint8_t counter_active;
-	uint16_t padding;
-	int32_t counter;
+	uint16_t state;
+	int32_t pp_thrust;
+	int32_t av_alti;
+	int32_t tvc_thrust;
+	int32_t tvc_alti;
+	int32_t tvc_vel;
+	uint32_t padding;
+	uint32_t time;
 }STORAGE_DATA_t;  //MUST BE AN INTEGER DIVISOR OF 4096
 
 
@@ -143,6 +140,20 @@ void storage_init() {
 
 void storage_record_sample() {
 	STORAGE_DATA_t data = {0};
+
+	CONTROL_STATUS_t status = control_get_status();
+	CM4_PAYLOAD_COMMAND_t cmd = control_get_cmd();
+	CM4_PAYLOAD_FEEDBACK_t fdb = control_get_fdb();
+	CM4_PAYLOAD_SENSOR_t sens = control_get_sens();
+
+	data.av_alti = sens.alti;
+	data.pp_thrust = fdb.cc_pressure;
+	data.tvc_alti = cmd.position[2];
+	data.tvc_vel = cmd.speed[2];
+	data.state = status.state;
+	data.time = status.time;
+	data.tvc_thrust = cmd.thrust;
+
 
 	write_data(data);
 

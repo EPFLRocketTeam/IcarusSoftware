@@ -89,6 +89,7 @@ typedef struct CONTROL_INST{
 	CAN_msg msg;
 	CM4_PAYLOAD_SENSOR_t sensor_payload;
 	CM4_PAYLOAD_COMMAND_t command_payload;
+	CM4_PAYLOAD_FEEDBACK_t feedback_payload;
 }CONTROL_INST_t;
 
 
@@ -120,6 +121,10 @@ CM4_PAYLOAD_SENSOR_t control_get_sens(void);
 void control_set_cmd(CM4_PAYLOAD_COMMAND_t cmd);
 
 CM4_PAYLOAD_COMMAND_t control_get_cmd(void);
+
+void control_set_fdb(CM4_PAYLOAD_FEEDBACK_t fdb);
+
+CM4_PAYLOAD_FEEDBACK_t control_get_fdb(void);
 
 void control_move_tvc(int32_t target);
 void control_boot(void);

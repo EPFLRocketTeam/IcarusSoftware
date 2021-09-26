@@ -177,7 +177,7 @@ void pipeline_thread(void * arg) {
 				pipeline.sensors_data.gyro_z = (int32_t) pipeline.msg.data;
 				pipeline.sensors_flags |= PIPELINE_SENSORS_GYRO_Z;
 
-			} else if(pipeline.msg.id == DATA_ID_PRESS_2) {
+			} else if(pipeline.msg.id == DATA_ID_PRESS_1) { //CCpressure
 				pipeline.feedback_data.cc_pressure = (int32_t) pipeline.msg.data;
 				pipeline.feedback_flags |= PIPELINE_FEEDBACK_THRUST;
 
@@ -196,11 +196,13 @@ void pipeline_thread(void * arg) {
 			if(pipeline.sensors_flags == PIPELINE_SENSORS_ALL) {
 				pipeline.sensors_flags = 0;
 				cm4_send_sensors(pipeline.cm4, &pipeline.sensors_data);
+				control_set_sens(pipeline.sensors_data);
 			}
 
 			if(pipeline.feedback_flags == PIPELINE_FEEDBACK_ALL) {
 				pipeline.feedback_flags = 0;
 				cm4_send_feedback(pipeline.cm4, &pipeline.feedback_data);
+				control_set_fdb(pipeline.feedback_data);
 			}
 		}
 		vTaskDelayUntil( &last_wake_time, period );
@@ -211,14 +213,18 @@ void pipeline_thread(void * arg) {
 
 void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd) {
 	can_setFrame((uint32_t) cmd->thrust, DATA_ID_THRUST_CMD, cmd->timestamp);
+	/*
 	can_setFrame((uint32_t) cmd->dynamixel[0], DATA_ID_VANE_CMD_1, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->dynamixel[1], DATA_ID_VANE_CMD_2, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->dynamixel[2], DATA_ID_VANE_CMD_3, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->dynamixel[3], DATA_ID_VANE_CMD_4, cmd->timestamp);
+	*/
+	/*
 	can_setFrame((uint32_t) cmd->position[0], DATA_ID_KALMAN_X, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->speed[0], DATA_ID_KALMAN_VX, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->position[1], DATA_ID_KALMAN_Y, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->speed[1], DATA_ID_KALMAN_VY, cmd->timestamp);
+	*/
 	can_setFrame((uint32_t) cmd->position[2], DATA_ID_KALMAN_Z, cmd->timestamp);
 	can_setFrame((uint32_t) cmd->speed[2], DATA_ID_KALMAN_VZ, cmd->timestamp);
 
