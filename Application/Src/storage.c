@@ -244,7 +244,7 @@ void storage_thread(void * arg) {
 			}
 		}
 		if(xSemaphoreTake(storage_sem, 0xffff) == pdTRUE) {
-
+			storage_record_sample();
 		}
 	}
 }

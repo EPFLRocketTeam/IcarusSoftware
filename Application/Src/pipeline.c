@@ -197,6 +197,7 @@ void pipeline_thread(void * arg) {
 				pipeline.sensors_flags = 0;
 				cm4_send_sensors(pipeline.cm4, &pipeline.sensors_data);
 				control_set_sens(pipeline.sensors_data);
+				storage_notify();
 			}
 
 			if(pipeline.feedback_flags == PIPELINE_FEEDBACK_ALL) {

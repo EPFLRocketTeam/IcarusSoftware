@@ -263,6 +263,7 @@ static void init_compute(CONTROL_INST_t * control) {
 	//start sending data to raspberry pi
 	led_set_color(LED_BLUE);
 	control->state = CS_COMPUTE;
+	storage_restart();
 }
 
 static void compute(CONTROL_INST_t * control) {
@@ -278,6 +279,7 @@ static void init_shutdown(CONTROL_INST_t * control) {
 	led_set_color(LED_ORANGE);
 	control->state = CS_SHUTDOWN;
 	cm4_shutdown(control->cm4);
+	storage_disable();
 }
 
 static void shutdown(CONTROL_INST_t * control) {
