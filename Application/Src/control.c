@@ -18,6 +18,7 @@
 #include <servo.h>
 #include <cm4.h>
 #include <pipeline.h>
+#include <iwdg.h>
 
 /**********************
  *	CONFIGURATION
@@ -155,6 +156,8 @@ void control_thread(void * arg) {
 
 	last_wake_time = xTaskGetTickCount();
 
+	HAL_IWDG_Init(&hiwdg);
+
 
 	for(;;) {
 
@@ -185,6 +188,8 @@ void control_thread(void * arg) {
 
 
 static void control_update(CONTROL_INST_t * control) {
+
+	HAL_IWDG_Refresh(&hiwdg);
 
 	control->last_time = control->time;
 	control->time = HAL_GetTick();
