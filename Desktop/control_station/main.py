@@ -58,7 +58,7 @@ rec_file = None
 start_rec = None
 
 data_labels = ['pres_1 [mBar]', 'pres_2 [mBar]', 'temp_1 [0.1deC]', 'temp_2 [0.1deC]', 'temp_3 [0.1degC]', 'sensor_time [ms]']
-remote_labels = ['data_id', 'temp_1', 'temp_2', 'temp_3', 'pres_1', 'pres_2', 'motor_pos', 'sensor_time', 'system state', 'counter_active', 'padding', 'counter']
+remote_labels = ['data_id', 'hb_state', 'cm4_state', 'pp_thrust', 'av_alti', 'tvc_thrust', 'tvc_alti', 'tvc_vel', 'padding', 'time']
 
 def safe_int(d):
     try:
@@ -191,6 +191,7 @@ def ping_cb(stat, trans, sens):
         state_text = ['IDLE', 'BOOT', 'COMPUTE', 'SHUTDOWN', 'ABORT', 'ERROR']
         window.status_state.insert(state_text[state])
         window.dl_used.setText(id_2_mem(data[3]))
+        print(id_2_mem(data[3]))
         total_data = data[3]
         window.tvc_psu.insert(str(data[5]/10))
         window.tvc_motor_current.insert(str(dyn2deg(data[4])))
@@ -376,7 +377,7 @@ class Serial_worker(QObject):
                         err_counter = 0
                     continue
                 for i in range(5):
-                    tmp_data = struct.unpack("HhhhiiiIBBHi", bytes(data[i*32:(i+1)*32]))
+                    tmp_data = struct.unpack("HBBiiiiiII", bytes(data[i*32:(i+1)*32]))
                     #print(bytes(data[i*32:(i+1)*32]))
                     recv_data.append(tmp_data)
                 last_recv += 5

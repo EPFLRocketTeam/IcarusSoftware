@@ -60,7 +60,8 @@
 
 typedef struct  STORAGE_DATA{
 	uint16_t sample_id;
-	uint16_t state;
+	uint8_t hb_state;
+	uint8_t cm4_state;
 	int32_t pp_thrust;
 	int32_t av_alti;
 	int32_t tvc_thrust;
@@ -134,6 +135,7 @@ void storage_init() {
 	}
 	record_active = 0;
 	restart_required = 0;
+	record_should_stop = 0;
 	storage_sem = xSemaphoreCreateBinaryStatic(&storage_sem_buffer);
 }
 
@@ -150,7 +152,8 @@ void storage_record_sample() {
 	data.pp_thrust = fdb.cc_pressure;
 	data.tvc_alti = cmd.position[2];
 	data.tvc_vel = cmd.speed[2];
-	data.state = status.state;
+	data.hb_state = status.state;
+	data.cm4_state = cmd.state;
 	data.time = status.time;
 	data.tvc_thrust = cmd.thrust;
 
@@ -244,7 +247,9 @@ void storage_thread(void * arg) {
 			}
 		}
 		if(xSemaphoreTake(storage_sem, 0xffff) == pdTRUE) {
-			storage_record_sample();
+			if(record_active) {
+				storage_record_sample();
+			}
 		}
 	}
 }

@@ -21,6 +21,8 @@
 
 #include <control.h>
 
+#include <storage.h>
+
 
 /**********************
  *	CONSTANTS

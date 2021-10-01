@@ -221,6 +221,7 @@ static void debug_sensor_write(uint8_t * data, uint16_t data_len, uint8_t * resp
 
 		control_set_sens(sens_data);
 		cm4_send_sensors(control_get_cm4(), &sens_data);
+		storage_notify();
 
 		resp[0] = OK_LO;
 		resp[1] = OK_HI;

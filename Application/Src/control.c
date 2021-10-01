@@ -264,6 +264,8 @@ static void init_compute(CONTROL_INST_t * control) {
 	led_set_color(LED_BLUE);
 	control->state = CS_COMPUTE;
 	storage_restart();
+	storage_enable();
+
 }
 
 static void compute(CONTROL_INST_t * control) {
@@ -359,6 +361,7 @@ CONTROL_STATUS_t control_get_status() {
 	status.tvc_psu_voltage = control.tvc_servo->psu_voltage;
 	status.tvc_temperature = control.tvc_servo->temperature;
 	status.tvc_position = control.tvc_servo->position;
+	status.time = control.last_time;
 
 	return status;
 }
