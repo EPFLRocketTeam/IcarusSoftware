@@ -197,7 +197,7 @@ static void control_update(CONTROL_INST_t * control) {
 	static uint16_t hb_count = 0;
 	hb_count += CONTROL_HEART_BEAT;
 	if(hb_count > 1000) {
-		pipeline_send_heartbeat(control->state, control->time);
+		pipeline_send_heartbeat(control->state, control->command_payload.state, control->time);
 		hb_count = 0;
 	}
 

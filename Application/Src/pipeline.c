@@ -234,10 +234,15 @@ void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd) {
 }
 
 
-void pipeline_send_heartbeat(CONTROL_STATE_t state, uint32_t time) {
-	can_setFrame((uint32_t) state, DATA_ID_TVC_HEARTBEAT, time);
+void pipeline_send_heartbeat(CONTROL_STATE_t state, uint8_t gnc_state, uint32_t time) {
+	can_setFrame((state&0xFF) | ((gnc_state&0xFF)<<8) , DATA_ID_TVC_HEARTBEAT, time);
 }
 
+
+//void pipeline_send_reset(void) {
+//	can_setFrame(('r'<<0) | ('e'<<8) | ('s'<<16) | ('e'<<24), DATA_ID_SHELL_INPUT, 0);
+//	can_setFrame(('t'<<0) | ('\r'<<8) | ('\n'<<16) | ('\0'<<24), DATA_ID_SHELL_INPUT, 0);
+//}
 
 
 /* END */

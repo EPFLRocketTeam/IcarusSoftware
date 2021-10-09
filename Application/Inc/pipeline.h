@@ -68,7 +68,7 @@ void pipeline_thread(void * arg);
 
 void pipeline_send_control(CM4_PAYLOAD_COMMAND_t * cmd);
 
-void pipeline_send_heartbeat(CONTROL_STATE_t state, uint32_t time);
+void pipeline_send_heartbeat(CONTROL_STATE_t state, uint8_t gnc_state, uint32_t time);
 
 #ifdef __cplusplus
 } // extern "C"
