@@ -212,6 +212,25 @@ static void control_update(CONTROL_INST_t * control) {
 		init_abort(control);
 		control_sched_done(control, CONTROL_SCHED_ABORT);
 	}
+
+	// alternate boot and shutdown control
+	static int boot_triggered = 0;
+	if(HAL_GPIO_ReadPin(CM4_BOOT_GPIO_Port, CM4_BOOT_Pin) == GPIO_PIN_SET && boot_triggered == 0) {
+		boot_triggered = 1;
+		control_sched_should_run(control, CONTROL_SCHED_BOOT);
+	}
+	if(!HAL_GPIO_ReadPin(CM4_BOOT_GPIO_Port, CM4_BOOT_Pin) == GPIO_PIN_RESET && boot_triggered == 1) {
+		boot_triggered = 0;
+	}
+
+	static int shutdown_triggered = 0;
+	if(HAL_GPIO_ReadPin(CM4_SHUTDOWN_GPIO_Port, CM4_SHUTDOWN_Pin) == GPIO_PIN_SET && shutdown_triggered == 0) {
+		shutdown_triggered = 1;
+		control_sched_should_run(control, CONTROL_SCHED_SHUTDOWN);
+	}
+	if(!HAL_GPIO_ReadPin(CM4_SHUTDOWN_GPIO_Port, CM4_SHUTDOWN_Pin) == GPIO_PIN_RESET && shutdown_triggered == 1) {
+		shutdown_triggered = 0;
+	}
 }
 
 static void init_control(CONTROL_INST_t * control) {

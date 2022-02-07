@@ -74,7 +74,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
-	UART_HandleTypeDef * lol = huart;
 }
 
 
